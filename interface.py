@@ -20,7 +20,7 @@ class Interface:
     def display_menu(self):
         input_opcao = 0
 
-        while input_opcao != 5:
+        while input_opcao != 9:
             print(
             "==============================\n"
             "   Bem-vindo ao sistema!  \n"
@@ -32,14 +32,15 @@ class Interface:
             "5 - Produtos\n"
             "6 - Estoque\n"
             "7 - Compra\n"
-            "8 - Sair\n"
+            "8 - Pagamentos\n"
+            "9 - Sair\n"
             "==============================")
 
             #Corrige a entrada do usuário:
             try:
-                input_opcao = int(input("Escolha uma opção (1-8): "))
+                input_opcao = int(input("Escolha uma opção (1-9): "))
             except ValueError:
-                print("Entrada inválida. Por favor, insira um número entre 1 e 8.")
+                print("Entrada inválida. Por favor, insira um número entre 1 e 9.")
                 continue
             
             match input_opcao:
@@ -156,7 +157,7 @@ class Interface:
         funcionario = funcionarios.Funcionario()
         disponibilidades = disponibilidade.Disponibilidade()
 
-        while input_opcao != 7:
+        while input_opcao != 8:
             print("==============================\n"
             "--- Menu Funcionários ---\n"
             "1 - Listar Funcionários\n"
@@ -249,7 +250,7 @@ class Interface:
         servicos = servico.Servico()
         categorias = categoria.Categoria()
 
-        while input_opcao != 7:
+        while input_opcao != 10:
             print("==============================\n"
                     "--- Menu Serviços ---\n"
                     "1 - Listar serviços\n"
@@ -356,7 +357,7 @@ class Interface:
         servicos = servico.Servico()
         cliente = clientes.Clientes()
         
-        while input_opcao != 7:
+        while input_opcao != 6:
             print("==============================\n"
                   "1 - Listar agendas\n"
                   "2 - Cadastrar agenda\n"  
@@ -489,7 +490,6 @@ class Interface:
                     case _:
                         print("Opção inválida. Tente novamente.")
 
-
 #Estoque ----------------------------------------------------------------------------------------------------
 
     def display_opcao_estoque(self):
@@ -556,5 +556,110 @@ class Interface:
                     print("Opção inválida. Tente novamente.")
                     continue
             
+#Compras ----------------------------------------------------------------------------------------------------
+
+    def display_opcao_compras(self):
+        compras = compra.Compra()
+        input_opcao = 0
+
+        while input_opcao != 3:
+            print("==============================\n"
+                "--- Menu Compras ---\n"
+                "1 - Listar compras\n"
+                "2 - Registrar compra\n"
+                "3 - Voltar\n"
+                "==============================")
+            
+            try:
+                input_opcao = int(input("Escolha uma opção (1-5): "))
+            
+            except ValueError:
+                print("Entrada inválida. Por favor, insira um número entre 1 e 5.")
+                continue
+
+            match input_opcao:
+                case 1:
+                    print("Listando Compras...")
+                    compras.ler_todas_compras()
+
+                case 2:
+                    try:
+                        metodo_pagamento = input("Digite o método de pagamento (ex: 'DINHEIRO','CARTAO_DEBITO','CARTAO_CREDITO','PIX','TRANSFERENCIA'): ")
+                        compras.registrar_compra(metodo_pagamento)
+
+                    except Exception as e:
+                        print(f"Erro ao registrar compra: {e}")
+
+                case 3:
+                    input("Pressione Enter para voltar ao menu principal...")
+                    break
+
+                case _:
+                    print("Opção inválida. Tente novamente.")
+                    continue
+
+# Pagamento ----------------------------------------------------------------------------------------------------
+
+    def display_opcao_pagamentos(self):
+        input_opcao = 0
+        pagamento = pagamentos.Pagamento()
+        compras = compra.Compra()
+        agenda = agendas.Agenda()
+
+        while input_opcao != 6:
+            print("==============================\n"
+                  "--- Menu Pagamentos ---\n"
+                  "1 - Listar pagamentos\n"
+                  "2 - Registrar pagamento produto\n"
+                  "3 - Registrar pagamento serviço\n"
+                  "4 - Ver um pagamento\n"
+                  "5 - Voltar\n"
+                  "==============================")
+
+            try:
+                input_opcao = int(input("Escolha uma opção (1-5): "))
+            except ValueError:
+                print("Entrada inválida. Por favor, insira um número entre 1 e 5.")
+                continue
+
+            match input_opcao:
+                case 1:
+                    print("Listando Pagamentos...")
+                    pagamento.ler_todos_pagamentos()
+
+                case 2:
+                    try:
+                        compras.ler_todas_compras()
+                        id_compra = input("Digite o ID da compra associada ao pagamento: ")
+                        metodo_pagamento = input("Digite o método de pagamento (ex: 'DINHEIRO','CARTAO_DEBITO','CARTAO_CREDITO','PIX','TRANSFERENCIA': ")
+                        pagamento.registrar_pagamento_produto(id_compra, metodo_pagamento)
+
+                    except Exception as e:
+                        print(f"Erro ao adicionar pagamento: {e}")
+
+                case 3:
+                    try:
+                        agenda.ler_toda_agenda()
+                        id_agenda = input("Digite o ID da agenda associada ao pagamento: ")
+                        metodo_pagamento = input("Digite o método de pagamento (ex: 'DINHEIRO','CARTAO_DEBITO','CARTAO_CREDITO','PIX','TRANSFERENCIA': ")
+                        pagamento.registrar_pagamento_servico(id_agenda, metodo_pagamento)
+
+                    except Exception as e:
+                        print(f"Erro ao adicionar pagamento: {e}")
+
+                case 4:
+                    id_pagamento = input("ID do pagamento a ser visualizado: ")
+                    resultado = pagamento.ler_um_pagamento(id_pagamento)
+                    if len(resultado) == 0:
+                        print("Pagamento não encontrado.")
+
+                case 5:
+                    input("Pressione Enter para voltar ao menu principal...")
+                    break
+
+                case _:
+                    print("Opção inválida. Tente novamente.")
+                    continue
+
 interface = Interface()
 interface.display_menu()

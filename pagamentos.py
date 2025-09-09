@@ -8,6 +8,9 @@ class Pagamento(Crud):
     
     def ler_todos_pagamentos(self):
         return super().ler_todos()
+
+    def ler_um_pagamento(self, id):
+        return super().listar_um(id)
     
     def atualizar_pagamento(self, coluna, novo_valor, id):
         return super().atualizar(coluna, novo_valor, id)
@@ -56,7 +59,7 @@ class Pagamento(Crud):
         except Exception as e:
             raise ValueError(f"Erro ao buscar valor do produto: {e}")
             
-        valor_total = buscar_valor[0][0]
+        valor_total = buscar_valor[0]['sum']
             
         super().cadastro(
             id_agenda=None,
