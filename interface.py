@@ -6,6 +6,11 @@ import categoria
 import agendas
 import tabulate
 import disponibilidade
+import produto
+import estoque
+import itens_compra
+import compra
+import pagamentos
 
 
 class Interface:
@@ -16,34 +21,56 @@ class Interface:
         input_opcao = 0
 
         while input_opcao != 5:
-            print("==============================")
-            print("   Bem-vindo ao sistema!  ")
-            print("==============================")
-            print("1 - Clientes")
-            print("2 - Funcionários")
-            print("3 - Serviços")
-            print("4 - Agendas")
-            print("5 - Sair")
-            print("==============================")
+            print(
+            "==============================\n"
+            "   Bem-vindo ao sistema!  \n"
+            "==============================\n"
+            "1 - Clientes\n"
+            "2 - Funcionários\n"
+            "3 - Serviços\n"
+            "4 - Agendas\n"
+            "5 - Produtos\n"
+            "6 - Estoque\n"
+            "7 - Compra\n"
+            "8 - Sair\n"
+            "==============================")
 
             #Corrige a entrada do usuário:
             try:
-                input_opcao = int(input("Escolha uma opção (1-5): "))
+                input_opcao = int(input("Escolha uma opção (1-8): "))
             except ValueError:
-                print("Entrada inválida. Por favor, insira um número entre 1 e 5.")
+                print("Entrada inválida. Por favor, insira um número entre 1 e 8.")
                 continue
             
             match input_opcao:
                 case 1:
                     self.display_opcao_clientes()
+                
                 case 2:
                     self.display_opcao_funcionarios()
+                
                 case 3:
                     self.display_opcao_servicos()
+                
                 case 4:
                     self.display_opcao_agendas()
+                
                 case 5:
-                    print("Saindo do sistema. Até logo!")
+                    self.display_opcao_produtos()
+                
+                case 6:
+                    self.display_opcao_estoque()
+                
+                case 7:
+                    self.display_opcao_compras()
+                
+                case 8:
+                    self.display_opcao_pagamentos()
+                
+                case 9:
+                    print("Saindo do sistema. Até mais!")
+                    break
+                
                 case _:
                     print("Opção inválida. Tente novamente.")
 
@@ -122,7 +149,7 @@ class Interface:
                 case _:
                     print("Opção inválida. Tente novamente.")
 
-#Funcionarios ----------------------------------------------------------------------------------------------------
+#Funcionarios ------------------------------------------------------------------------------------------------
 
     def display_opcao_funcionarios(self):
         input_opcao = 0
@@ -355,8 +382,6 @@ class Interface:
                         disponibilidades.ler_todas_disponibilidades() #Mostra as disponibilidades cadastradas 
                         dia = input("Digite o dia da agenda (dd/mm/aaaa):")
                         horario = input("Digite o horario da agenda:")
-
-                        disponibilidades.ler_todas_disponibilidades() #Mostra os funcionários disponiveis
                         id_funcionario = input("Digite o id do funcionário:")
 
                         servicos.ler_todos_servicos() #Mostra os serviços cadastrados
@@ -394,7 +419,142 @@ class Interface:
                 case _:
                     print("Opção inválida. Tente novamente.")
 
+#Produtos ----------------------------------------------------------------------------------------------------
+
+    def display_opcao_produtos(self):
+            input_opcao = 0
+            produtos = produto.Produto()
+
+            while input_opcao != 7:
+                print("==============================\n"
+                    "--- Menu Produtos ---\n"
+                    "1 - Listar produtos\n"
+                    "2 - Adicionar produto\n"
+                    "3 - Pesquisar nome do produto\n"
+                    "4 - Ver um produto\n"
+                    "5 - Atualizar produto\n"
+                    "6 - Deletar produto\n"
+                    "7 - Voltar\n"
+                    "==============================")
+
+                try:
+                    input_opcao = int(input("Escolha uma opção (1-7): "))
+                except ValueError:
+                    print("Entrada inválida. Por favor, insira um número entre 1 e 7.")
+                    continue
+
+                match input_opcao:
+                    case 1:
+                        print("Listando Produtos...")
+                        produtos.ler_todos_produtos()
+
+                    case 2:
+                        try:
+                            nome  = input("Digite o nome do produto:")
+                            valor = input("Digite o valor do produto:")
+                            tipo = input("Digite o tipo do produto:")
+                            produtos.cadastro_produto(nome, valor, tipo)
+                        
+                        except Exception as e:
+                            print(f"Erro ao adicionar produto: {e}")
+
+                    case 3:
+                        nome = input("Digite o nome do produto: ")
+                        resultados = produtos.pesquisar_nome_produto(nome)
+                        print(resultados)
+
+                    case 4:
+                        id_produto = input("ID do produto: ")
+                        resultado = produtos.ler_um_produto(id_produto)
+                        if len(resultado) == 0:
+                            print("Produto não encontrado.")
+                    case 5:
+                        try:
+                            coluna = input("Coluna a ser atualizada (nome, valor, tipo, status): ")
+                            novo_valor = input("Novo valor: ")
+                            id_produto = input("ID do produto a ser atualizado: ")
+                            produtos.atualizar_produto(coluna, novo_valor, id_produto)
+
+                        except Exception as e:
+                            print(f"Erro ao atualizar produto: {e}")
+
+                    case 6:
+                        id_produto = input("ID do produto a ser deletado: ")
+                        produtos.deletar_produto(id_produto)
+
+                    case 7:
+                        input("Pressione Enter para voltar ao menu principal...")
+                        continue
+
+                    case _:
+                        print("Opção inválida. Tente novamente.")
 
 
+#Estoque ----------------------------------------------------------------------------------------------------
+
+    def display_opcao_estoque(self):
+        input_opcao = 0
+        estoques = estoque.Estoque()
+
+        while input_opcao != 6:
+            print("==============================\n"
+                  "--- Menu Estoque ---\n"
+                  "1 - Listar estoque\n"
+                  "2 - Adicionar ao estoque\n"
+                  "3 - Ver um item do estoque\n"
+                  "4 - Atualizar estoque\n"
+                  "5 - Deletar do estoque\n"
+                  "6 - Voltar\n"
+                  "==============================")
+
+            try:
+                input_opcao = int(input("Escolha uma opção (1-6): "))
+            except ValueError:
+                print("Entrada inválida. Por favor, insira um número entre 1 e 6.")
+                continue
+
+            match input_opcao:
+                case 1:
+                    print("Listando Estoque...")
+                    estoques.ler_todo_estoque()
+                
+                case 2:
+                    try:
+                        nome = input("Digite o nome do produto: ")
+                        quantidade = int(input("Digite a quantidade: "))
+                        quantidade_min = int(input("Digite a quantidade mínima: "))
+                        estoques.cadastro_estoque(nome, quantidade, quantidade_min)
+
+                    except Exception as e:
+                        print(f"Erro ao adicionar ao estoque: {e}")
+
+                case 3:
+                    id_estoque = input("ID do item do estoque: ")
+                    resultado = estoques.ler_um_estoque(id_estoque)
+                    if len(resultado) == 0:
+                        print("Item do estoque não encontrado.")
+                    
+                case 4:
+                    try:
+                        coluna = input("Coluna a ser atualizada (quantidade_atual, quantidade_minima): ")
+                        novo_valor = input("Novo valor: ")
+                        id_estoque = input("ID do item do estoque a ser atualizado: ")
+                        estoques.atualizar_estoque(coluna, novo_valor, id_estoque)
+
+                    except Exception as e:
+                        print(f"Erro ao atualizar estoque: {e}")
+                
+                case 5:
+                    id_estoque = input("ID do item do estoque a ser deletado: ")
+                    estoques.deletar_estoque(id_estoque)
+                
+                case 6:
+                    input("Pressione Enter para voltar ao menu principal...")
+                    break
+
+                case _:
+                    print("Opção inválida. Tente novamente.")
+                    continue
+            
 interface = Interface()
 interface.display_menu()

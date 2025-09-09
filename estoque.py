@@ -11,7 +11,6 @@ class Estoque(Crud):
 
             consulta = self.processar("""SELECT idproduto FROM produto WHERE nome = %s""", (nome_produto,), fetch=True)
             
-            print(f"{consulta}: id do produto")
             if not consulta:
                 raise ValueError(f"Produto '{nome_produto}' não encontrado")
             
@@ -23,7 +22,6 @@ class Estoque(Crud):
                 quantidade_minima=quantidade_minima,
                 )
             
-            print("chegou aqui!")
             return True
             
         except Exception as e:
@@ -31,7 +29,7 @@ class Estoque(Crud):
             return False
     
     def ler_todo_estoque(self):
-       
+        super().ler_todos()
         return self.processar("""
                                 SELECT e.*, p.nome 
                                 FROM estoque e 
