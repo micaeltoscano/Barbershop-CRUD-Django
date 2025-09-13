@@ -11,6 +11,7 @@ import estoque
 import itens_compra
 import compra
 import pagamentos
+import relatorios
 
 
 class Interface:
@@ -20,7 +21,7 @@ class Interface:
     def display_menu(self):
         input_opcao = 0
 
-        while input_opcao != 9:
+        while input_opcao != 10:
             print(
             "==============================\n"
             "   Bem-vindo ao sistema!  \n"
@@ -33,7 +34,8 @@ class Interface:
             "6 - Estoque\n"
             "7 - Compra\n"
             "8 - Pagamentos\n"
-            "9 - Sair\n"
+            "9 - Relatórios\n"
+            "10 - Sair\n"
             "==============================")
 
             #Corrige a entrada do usuário:
@@ -69,6 +71,10 @@ class Interface:
                     self.display_opcao_pagamentos()
                 
                 case 9:
+                    relatorio = relatorios.relatorios()
+                    print(tabulate.tabulate(relatorio.items(), headers=["Métrica", "Valor"], tablefmt="fancy_grid"))
+
+                case 10:
                     print("Saindo do sistema. Até mais!")
                     break
                 
@@ -102,7 +108,7 @@ class Interface:
             match input_opcao:
                 case 1:
                     print("Listando clientes...")
-                    cliente.ler_todos_clientes()
+                    print(tabulate.tabulate(cliente.ler_todos_clientes(), headers="keys", tablefmt="fancy_grid"))
                     
                 case 2:
                     print("Adicionando cliente...")
@@ -121,13 +127,15 @@ class Interface:
                     
                 case 3:
                     nome = input("Nome para pesquisa: ")
-                    resultados = cliente.pesquisar_nome(nome)
-                            
+                    resultados = print(tabulate.tabulate(cliente.pesquisar_nome(nome), headers="keys", tablefmt="fancy_grid"))
+                    
                 case 4:
                     id_cliente = input("ID do cliente: ")
                     resultado = cliente.ler_um_cliente(id_cliente)
-                    if len(resultado) == 0:
-                        print("Cliente não encontrado.")
+                    if len(resultado) == 0: #Já tem tratamento de erro na função ler_um_cliente
+                        continue
+                    else:
+                        print(tabulate.tabulate(resultado, headers="keys", tablefmt="fancy_grid"))
 
                 case 5:
                     try:
@@ -179,7 +187,7 @@ class Interface:
             match input_opcao:
                 case 1:
                     print("Listando Funcionários...")
-                    funcionario.ler_todos_funcionarios()
+                    print(tabulate.tabulate(funcionario.ler_todos_funcionarios(), headers="keys", tablefmt="fancy_grid"))
 
                 case 2:
                     print("Adicionando Funcionário...")
@@ -201,10 +209,18 @@ class Interface:
                 case 3:
                     nome = input("Nome para pesquisa: ")
                     resultados = funcionario.pesquisar_nome(nome)
+                    if len(resultados) == 0:
+                        continue
+                    else:
+                        print(tabulate.tabulate(resultados, headers="keys", tablefmt="fancy_grid"))
 
                 case 4:
                     id_funcionario = input("ID do funcionário: ")
                     resultado = funcionario.ler_um_funcionario(id_funcionario)
+                    if len(resultado) == 0:
+                        continue
+                    else:
+                        print(tabulate.tabulate(resultado, headers="keys", tablefmt="fancy_grid"))
 
                 case 5:
                     try:
@@ -233,8 +249,10 @@ class Interface:
                     hora_inicio = input("Hora de início (formato 24h, ex: 14:00): ")
                     hora_fim = input("Hora de término (formato 24h, ex: 18:00): ")
                     id_funcionario = input("ID do funcionário: ")
-
-                    disponibilidades.cadastro_disponibilidade(id_funcionario, dia_semana, hora_inicio, hora_fim)
+                    try:
+                        disponibilidades.cadastro_disponibilidade(id_funcionario, dia_semana, hora_inicio, hora_fim)
+                    except Exception as e:
+                        print(f"Erro ao cadastrar disponibilidade: {e}")
 
                 case 8:
                     input("Pressione Enter para voltar ao menu principal...")
@@ -274,13 +292,14 @@ class Interface:
             match input_opcao:
                 case 1:
                     print("Listando Serviços...")
-                    servicos.ler_todos_servicos()
+                    print(tabulate.tabulate(servicos.ler_todos_servicos(), headers="keys", tablefmt="fancy_grid"))
 
                 case 2:
                     try:
                         nome_servico  = input("Digite o nome do serviço:")
                         valor = input("Digite o valor do serviço:")
-                        categorias.ler_todas_categorias()
+                        print("Categorias já cadastradas:")
+                        print(tabulate.tabulate(categorias.ler_todas_categorias(), headers="keys", tablefmt="fancy_grid"))
                         resposta = int(input("A categoria já foi cadastrada? (1 ou 0): "))
 
                         #Verifica se a categoria já existe
@@ -290,7 +309,7 @@ class Interface:
                         else:
                             categoria_nome = input("Digite o nome da categoria:")
                             categorias.cadastro_categoria(categoria_nome)
-                            categorias.ler_todas_categorias()
+                            print(tabulate.tabulate(categorias.ler_todas_categorias(), headers="keys", tablefmt="fancy_grid"))
                             id_categoria = input("Digite o id da categoria do serviço:")
 
                         duracao = input("Digite a duração do serviço em minutos:")
@@ -303,13 +322,20 @@ class Interface:
                 case 3:
                     nome = input("Digite o nome do serviço: ")
                     resultados = servicos.pesquisar_nome(nome)
-                    print(resultados)
+                    
+                    if len(resultados) == 0:
+                        continue
+                    else:
+                        print(tabulate.tabulate(resultados, headers="keys", tablefmt="fancy_grid"))
+                    
 
                 case 4:
                     id_servico = input("ID do serviço: ")
                     resultado = servicos.ler_um_servico(id_servico)
                     if len(resultado) == 0:
-                        print("Serviço não encontrado.")
+                        continue
+                    else:
+                        print(tabulate.tabulate(resultado, headers="keys", tablefmt="fancy_grid"))
 
                 case 5:
                     try:
@@ -326,7 +352,7 @@ class Interface:
                     servicos.deletar_servico(id_servico)
 
                 case 7:
-                    categorias.ler_todas_categorias()
+                    print(tabulate.tabulate(categorias.ler_todas_categorias(), headers="keys", tablefmt="fancy_grid"))
                     id_categoria = input("ID da categoria a ser deletada: ")
                     categorias.deletar_categoria(id_categoria)
 
@@ -339,7 +365,7 @@ class Interface:
 
                 case 9:
                     print("Listando categorias...")
-                    categorias.ler_todas_categorias()
+                    print(tabulate.tabulate(categorias.ler_todas_categorias(), headers="keys", tablefmt="fancy_grid"))
 
                 case 10:
                     input("Pressione Enter para voltar ao menu principal...")
@@ -376,19 +402,22 @@ class Interface:
             match input_opcao:
                 case 1:
                     print("Listando Agendas...")
-                    agenda.ler_toda_agenda()
+                    print(tabulate.tabulate(agenda.ler_toda_agenda(), headers="keys", tablefmt="fancy_grid"))
 
                 case 2:
                     try:
-                        disponibilidades.ler_todas_disponibilidades() #Mostra as disponibilidades cadastradas 
+                        print("Disponibilidades já cadastradas:")
+                        print(tabulate.tabulate(disponibilidades.ler_todas_disponibilidades(), headers="keys", tablefmt="fancy_grid"))
                         dia = input("Digite o dia da agenda (dd/mm/aaaa):")
                         horario = input("Digite o horario da agenda:")
                         id_funcionario = input("Digite o id do funcionário:")
 
-                        servicos.ler_todos_servicos() #Mostra os serviços cadastrados
+                        print("Serviços já cadastrados:")
+                        print(tabulate.tabulate(servicos.ler_todos_servicos(), headers="keys", tablefmt="fancy_grid"))
                         id_servico = input("Digite o id de servico:")
 
-                        cliente.ler_todos_clientes() #Mostra os clientes cadastrados
+                        print("Clientes já cadastrados:")
+                        print(tabulate.tabulate(cliente.ler_todos_clientes(), headers="keys", tablefmt="fancy_grid"))
                         id_cliente = input("Digite o id do cliente:")
 
                         agenda.cadastrar_agenda(dia, horario, id_funcionario, id_servico, id_cliente, status='agendado')
@@ -400,10 +429,12 @@ class Interface:
                     id_agenda = input("Digite o id da agenda: ")
                     resultados = agenda.ler_um_agenda(id_agenda)
                     if len(resultados) == 0:
-                        print("Agenda não encontrada.")
+                        continue
+                    else:
+                        print(tabulate.tabulate(resultados, headers="keys", tablefmt="fancy_grid"))
 
                 case 4:
-                    agenda.ler_toda_agenda()
+                    print(tabulate.tabulate(agenda.ler_toda_agenda(), headers="keys", tablefmt="fancy_grid"))
                     id_agenda = input("ID da agenda: ")
                     coluna = input("Coluna a ser atualizada (dia, horario, id_funcionario, id_servico, id_cliente, status): ")
                     novo_valor = input("Novo valor: ")          
@@ -447,7 +478,7 @@ class Interface:
                 match input_opcao:
                     case 1:
                         print("Listando Produtos...")
-                        produtos.ler_todos_produtos()
+                        print(tabulate.tabulate(produtos.ler_todos_produtos(), headers="keys", tablefmt="fancy_grid"))
 
                     case 2:
                         try:
@@ -462,13 +493,20 @@ class Interface:
                     case 3:
                         nome = input("Digite o nome do produto: ")
                         resultados = produtos.pesquisar_nome_produto(nome)
-                        print(resultados)
+                        
+                        if len(resultados) == 0:
+                            continue
+                        else:
+                            print(tabulate.tabulate(resultados, headers="keys", tablefmt="fancy_grid"))
 
                     case 4:
                         id_produto = input("ID do produto: ")
                         resultado = produtos.ler_um_produto(id_produto)
                         if len(resultado) == 0:
-                            print("Produto não encontrado.")
+                            continue
+                        else:
+                            print(tabulate.tabulate(resultado, headers="keys", tablefmt="fancy_grid"))
+
                     case 5:
                         try:
                             coluna = input("Coluna a ser atualizada (nome, valor, tipo, status): ")
@@ -516,7 +554,7 @@ class Interface:
             match input_opcao:
                 case 1:
                     print("Listando Estoque...")
-                    estoques.ler_todo_estoque()
+                    print(tabulate.tabulate(estoques.ler_todo_estoque(), headers="keys", tablefmt="fancy_grid"))
                 
                 case 2:
                     try:
@@ -532,7 +570,9 @@ class Interface:
                     id_estoque = input("ID do item do estoque: ")
                     resultado = estoques.ler_um_estoque(id_estoque)
                     if len(resultado) == 0:
-                        print("Item do estoque não encontrado.")
+                        continue
+                    else:
+                        print(tabulate.tabulate(resultado, headers="keys", tablefmt="fancy_grid"))
                     
                 case 4:
                     try:
@@ -580,7 +620,7 @@ class Interface:
             match input_opcao:
                 case 1:
                     print("Listando Compras...")
-                    compras.ler_todas_compras()
+                    print(tabulate.tabulate(compras.ler_todas_compras(), headers="keys", tablefmt="fancy_grid"))
 
                 case 2:
                     try:
@@ -625,11 +665,11 @@ class Interface:
             match input_opcao:
                 case 1:
                     print("Listando Pagamentos...")
-                    pagamento.ler_todos_pagamentos()
+                    print(tabulate.tabulate(pagamento.ler_todos_pagamentos(), headers="keys", tablefmt="fancy_grid"))
 
                 case 2:
                     try:
-                        compras.ler_todas_compras()
+                        print(tabulate.tabulate(compras.ler_todas_compras(), headers="keys", tablefmt="fancy_grid"))
                         id_compra = input("Digite o ID da compra associada ao pagamento: ")
                         metodo_pagamento = input("Digite o método de pagamento (ex: 'DINHEIRO','CARTAO_DEBITO','CARTAO_CREDITO','PIX','TRANSFERENCIA': ")
                         pagamento.registrar_pagamento_produto(id_compra, metodo_pagamento)
@@ -639,7 +679,7 @@ class Interface:
 
                 case 3:
                     try:
-                        agenda.ler_toda_agenda()
+                        print(tabulate.tabulate(agenda.ler_toda_agenda(), headers="keys", tablefmt="fancy_grid"))
                         id_agenda = input("Digite o ID da agenda associada ao pagamento: ")
                         metodo_pagamento = input("Digite o método de pagamento (ex: 'DINHEIRO','CARTAO_DEBITO','CARTAO_CREDITO','PIX','TRANSFERENCIA': ")
                         pagamento.registrar_pagamento_servico(id_agenda, metodo_pagamento)
@@ -651,7 +691,9 @@ class Interface:
                     id_pagamento = input("ID do pagamento a ser visualizado: ")
                     resultado = pagamento.ler_um_pagamento(id_pagamento)
                     if len(resultado) == 0:
-                        print("Pagamento não encontrado.")
+                        continue
+                    else:
+                        print(tabulate.tabulate(resultado, headers="keys", tablefmt="fancy_grid"))
 
                 case 5:
                     input("Pressione Enter para voltar ao menu principal...")

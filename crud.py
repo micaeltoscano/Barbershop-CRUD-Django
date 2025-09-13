@@ -33,7 +33,7 @@ class Crud(Banco):
         try:
             leitura = self.processar(f"SELECT * FROM {self.tabela} ORDER BY {self.coluna_id}", fetch = True)
             if leitura:
-                print(tabulate.tabulate(leitura, headers="keys", tablefmt="fancy_grid"))
+                return leitura
             else:
                 print("Nenhum registro encontrado.")
             return leitura
@@ -45,7 +45,7 @@ class Crud(Banco):
         try:
             pesquisa = self.processar(f"SELECT * FROM {self.tabela} WHERE nome = %s", (nome,), fetch = True)
             if pesquisa:
-                print(tabulate.tabulate(pesquisa, headers="keys", tablefmt="fancy_grid"))
+                return pesquisa
             else:
                 print("Nenhum registro encontrado.")
             return pesquisa
@@ -57,7 +57,7 @@ class Crud(Banco):
         try:
             listar = self.processar(f"SELECT * FROM {self.tabela} WHERE {self.coluna_id} = %s", (id,), fetch = True)
             if listar:
-                print(tabulate.tabulate(listar, headers="keys", tablefmt="fancy_grid"))
+                return listar
             else:
                 print("Nenhum registro encontrado.")
             return listar

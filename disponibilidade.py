@@ -8,21 +8,24 @@ class Disponibilidade(Crud):
 
     def cadastro_disponibilidade(self,  id_funcionario, dia_semana, hora_inicio, hora_fim):
 
-        jacadastrado = self.processar(
+        try:
+            jacadastrado = self.processar(
                                         """SELECT 1 
                                         FROM disponibilidade 
                                         WHERE  id_funcionario = %s AND dia_semana = %s AND hora_inicio = %s AND hora_fim = %s""",
                                         ( id_funcionario, dia_semana, hora_inicio, hora_fim), fetch=True)
-        if jacadastrado:
+            if jacadastrado:
                 print("Disponibilidade já cadastrada para esse funcionário nesse horário.")
                 return
         
-        super().cadastro(
-            id_funcionario =  id_funcionario,
-            dia_semana = dia_semana,
-            hora_inicio = hora_inicio,
-            hora_fim = hora_fim
-        )
+            super().cadastro(
+                id_funcionario=id_funcionario,
+                dia_semana=dia_semana,
+                hora_inicio=hora_inicio,
+                hora_fim=hora_fim
+            )
+        except Exception as e:
+            raise ValueError(f"Ocorreu um erro durante o cadastro na tabela {self.tabela}: {e}")
 
     def ler_todas_disponibilidades(self):
         return super().ler_todos()
