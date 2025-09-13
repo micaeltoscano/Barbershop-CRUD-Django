@@ -49,5 +49,7 @@ itenscompra = Itens_compra()
 #print(servico.pesquisar_nome('raspagem de caneco'))
 
 
-agenda.atualizar_agenda('horario', '15:00', 1)
+#funcionario.cadastrar_funcionario('micael', 'a@gmail.com', '11538620421', 'novo_add', '99999999999', 15000, 'caneco')
+
+compra.registrar_compra('DINHEIRO')
 

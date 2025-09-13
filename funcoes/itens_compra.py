@@ -30,7 +30,7 @@ class Itens_compra(Crud):
                                             (idproduto,), fetch=True)
                 
                 #PEGA O VALOR E DEPOIS CALCULA O VALOR TOTAL DA COMPRA
-                valor_unitario = consulta[0][0]
+                valor_unitario = consulta[0]['valor']
                 valor_total_item = valor_unitario * quantidade
                 
                 #CADASTRA NA TABELA DE ITENS COMPRADOS

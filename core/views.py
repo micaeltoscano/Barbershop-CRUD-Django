@@ -14,7 +14,7 @@ from funcoes.produto import Produto
 from funcoes.utiliza import Utiliza
 from funcoes.pagamentos import Pagamento
 from datetime import datetime
-
+from django.db import transaction
 
 def list_view(request, classe, path):
     
@@ -148,22 +148,49 @@ def cadastrar_funcionario(request):
             return render(request, 'core/cadastro_funcionario.html')
             
         try:
-            f = Funcionario()
-            funcionario_id = f.cadastrar_funcionario(nome, email, cpf, endereco, numero_celular, salario, especialidade)
+            with transaction.atomic():
+                f = Funcionario()
+
+                id_funcionario = f.processar("SELECT 1 FROM FUNCIONARIO WHERE CPF = %s", (cpf,), fetch=True)
+                print("aqui 1")
+                if id_funcionario:
+                    print("aqui 2")
+                    id_funcionario = id_funcionario[0]['idfuncionario']
+                    f.atualizar_funcionario('status', 'ATIVO', id_funcionario) 
+                    f.atualizar_funcionario('email', email, id_funcionario) 
+                    f.atualizar_funcionario('endereco', endereco, id_funcionario) 
+                    f.atualizar_funcionario('numero_celular', numero_celular, id_funcionario)
+                    f.atualizar_funcionario('salario', salario, id_funcionario)
+                    f.atualizar_funcionario('especialidade', especialidade, id_funcionario)
+
+                    d = Disponibilidade()
+                    for i in range(len(dias_semana)):
+                        if dias_semana[i] and horas_inicio[i] and horas_fim[i]:
+                            d.cadastro_disponibilidade(
+                                funcionario_id,  
+                                dias_semana[i],
+                                horas_inicio[i],
+                                horas_fim[i]
+                            )
+                    messages.success(request, f'Funcionario "{nome}" REATIVADO NO SISTEMA com sucesso!')
+                    return redirect('cadastrar_produto')  
+                
+                else:
+                    funcionario_id = f.cadastrar_funcionario(nome, email, cpf, endereco, numero_celular, salario, especialidade)
+                    
+                    d = Disponibilidade()
+                    for i in range(len(dias_semana)):
+                        if dias_semana[i] and horas_inicio[i] and horas_fim[i]:
+                            d.cadastro_disponibilidade(
+                                funcionario_id,  
+                                dias_semana[i],
+                                horas_inicio[i],
+                                horas_fim[i]
+                            )
+
+                    messages.success(request, 'Funcionário cadastrado com sucesso!')
+                    return redirect('listar_funcionarios')
             
-            d = Disponibilidade()
-            for i in range(len(dias_semana)):
-                if dias_semana[i] and horas_inicio[i] and horas_fim[i]:
-                    d.cadastro_disponibilidade(
-                        funcionario_id,  
-                        dias_semana[i],
-                        horas_inicio[i],
-                        horas_fim[i]
-                    )
-            
-            messages.success(request, 'Funcionário cadastrado com sucesso!')
-            return redirect('listar_funcionarios')
-        
         except Exception as e:
             messages.error(request, f'Erro ao cadastrar: {str(e)}')
     
@@ -218,8 +245,8 @@ def deletar_funcionario(request):
         
         try:
             c = Funcionario()
-            c.deletar_funcionario(id)
-            messages.success(request, 'Funcionario deletado com sucesso!')
+            c.atualizar_funcionario('status', 'INATIVO', id)
+            messages.success(request, 'Funcionario desativado da empresa com sucesso!')
             return redirect('listar_funcionarios')
             
         except Exception as e:
@@ -605,7 +632,7 @@ def deletar_produto(request):
         try:
             p = Produto()
             p.atualizar_produto('status', 'INATIVO', idproduto)
-            messages.success(request, f'produto {idproduto} deletado com sucesso!')
+            messages.success(request, f'produto {idproduto} desativado do sistema com sucesso!')
             return redirect('lista_estoque')
             
         except Exception as e:
@@ -668,7 +695,6 @@ def relatorios(request):
     venda_mes = [sum(1 for p in p if p['data_pagamento'].month == mes_atual)]
     
 
-
     context = {
         'total_vendas': len(p),
         'valor_total_vendas': valor_total_vendas,
@@ -688,6 +714,4 @@ def relatorios(request):
     }
     
     return render(request, 'core/relatorio.html', context)
-
-
 

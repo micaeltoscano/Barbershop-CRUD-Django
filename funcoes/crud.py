@@ -70,10 +70,10 @@ class Crud(Banco):
     def atualizar(self, coluna, novo_valor, id):
         if coluna not in self.colunas_permitidas:
             print(f"Não é possível alterar a coluna: {coluna}")
+
             return False  # Retorna False indicando falha
 
         try:
-            # Certifique-se que self.processar RETORNA o número de linhas afetadas
             linhas_afetadas = self.processar(
                 f"UPDATE {self.tabela} SET {coluna} = %s WHERE {self.coluna_id} = %s",
                 (novo_valor, id)

@@ -56,7 +56,7 @@ class Pagamento(Crud):
         except Exception as e:
             raise ValueError(f"Erro ao buscar valor do produto: {e}")
             
-        valor_total = buscar_valor[0][0]
+        valor_total = buscar_valor[0]['sum']
             
         super().cadastro(
             id_agenda=None,

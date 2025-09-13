@@ -28,7 +28,7 @@ class Compra(Crud):
         super().cadastro(valor_total=0)
 
         #USA FUNCAO MAX PARA BUSCAR O ÚLTIMO ID INSERIDO
-        id_compra = self.processar("SELECT MAX(idcompra) FROM compra", fetch=True)[0][0]
+        id_compra = self.processar("SELECT MAX(idcompra) FROM compra", fetch=True)[0]['max']
 
         #CHAMA A FUNCAO DE RECEBER OS ITENS DA COMPRA
         itens.receber_produtos(id_compra)
@@ -36,7 +36,7 @@ class Compra(Crud):
         #CALCULA O TOTAL DA COMPRA
         total_compra = self.processar(
                                     "SELECT SUM(valor_total_item) FROM itens_compra WHERE id_compra = %s",
-                                    (id_compra,), fetch=True)[0][0]
+                                    (id_compra,), fetch=True)[0]['sum']
 
         #ATUALIZA A TABELA DE COMPRA COM O VALOR TOTAL REALIZADO NA COMPRA
         self.atualizar_compra('valor_total', total_compra, id_compra)
