@@ -398,8 +398,7 @@ def cadastrar_servico(request):
                     id_categoria=categoria_id
                 )
                 print(servico_id)
-                if servico_id and produto_ids and produto_ids[0]:  
-                    print("cheguei aqui!!!")
+                if servico_id and produto_ids and produto_ids[0]: 
                     u = Utiliza()
                     for i in range(len(produto_ids)):
                         if produto_ids[i] and produto_quantidades[i]:  
