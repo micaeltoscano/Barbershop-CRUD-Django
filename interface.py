@@ -12,6 +12,7 @@ import itens_compra
 import compra
 import pagamentos
 import relatorios
+from utiliza import Utiliza
 
 
 class Interface:
@@ -290,12 +291,14 @@ class Interface:
                 continue
 
             match input_opcao:
+
                 case 1:
                     print("Listando Serviços...")
                     print(tabulate.tabulate(servicos.ler_todos_servicos(), headers="keys", tablefmt="fancy_grid"))
 
                 case 2:
                     try:
+                        u = Utiliza()
                         nome_servico  = input("Digite o nome do serviço:")
                         valor = input("Digite o valor do serviço:")
                         print("Categorias já cadastradas:")
@@ -314,8 +317,23 @@ class Interface:
 
                         duracao = input("Digite a duração do serviço em minutos:")
 
-                        servicos.cadastro_servico(nome_servico, valor, id_categoria, duracao)
-                    
+                        servico_id = servicos.cadastro_servico(nome_servico, valor, id_categoria, duracao)
+
+                        produto_ids_quant = {}
+                        adicionar_produto = input("Deseja adicionar produtos ao serviço? (s/n): ").strip().lower()
+                        while adicionar_produto == 's':
+                            print("Produtos já cadastrados:")
+                            produtos = produto.Produto()
+                            print(tabulate.tabulate(produtos.ler_todos_produtos(), headers="keys", tablefmt="fancy_grid"))
+                            produto_id = input("Digite o ID do produto a ser adicionado ao serviço: ")
+                            quantidade = int(input("Digite a quantidade necessária desse produto para o serviço: "))
+                            produto_ids_quant[produto_id] = quantidade
+                            adicionar_produto = input("Deseja adicionar outro produto ao serviço? (s/n): ").strip().lower()
+                        
+                        if produto_ids_quant:
+                            for produto_id, quantidade in produto_ids_quant.items():
+                                u.cadastro_utiliza(servico_id, produto_id, quantidade)
+                        
                     except Exception as e:
                         print(f"Erro ao adicionar serviço: {e}")
 
