@@ -51,5 +51,5 @@ itenscompra = Itens_compra()
 
 #funcionario.cadastrar_funcionario('micael', 'a@gmail.com', '11538620421', 'novo_add', '99999999999', 15000, 'caneco')
 
-compra.registrar_compra('DINHEIRO')
+print(utiliza.ler_todos_utiliza())
 
