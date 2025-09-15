@@ -12,6 +12,7 @@ import itens_compra
 import compra
 import pagamentos
 import relatorios
+import utiliza
 
 
 class Interface:
@@ -237,6 +238,7 @@ class Interface:
                     funcionario.deletar_funcionario(id_funcionario)
 
                 case 7:
+                    print(tabulate.tabulate(disponibilidades.ler_todas_disponibilidades(), headers="keys", tablefmt="fancy_grid"))
                     print("Cadastrando disponibilidade para funcionário...\n"
                     "0 - segunda-feira\n"
                     "1 - terça-feira\n"
@@ -262,6 +264,7 @@ class Interface:
                     print("Opção inválida. Tente novamente.")
 
 #Serviços ----------------------------------------------------------------------------------------------------
+
 
     def display_opcao_servicos(self):
         input_opcao = 0
@@ -290,12 +293,14 @@ class Interface:
                 continue
 
             match input_opcao:
+
                 case 1:
                     print("Listando Serviços...")
                     print(tabulate.tabulate(servicos.ler_todos_servicos(), headers="keys", tablefmt="fancy_grid"))
 
                 case 2:
                     try:
+                        u = utiliza.Utiliza()
                         nome_servico  = input("Digite o nome do serviço:")
                         valor = input("Digite o valor do serviço:")
                         print("Categorias já cadastradas:")
@@ -314,8 +319,23 @@ class Interface:
 
                         duracao = input("Digite a duração do serviço em minutos:")
 
-                        servicos.cadastro_servico(nome_servico, valor, id_categoria, duracao)
-                    
+                        servico_id = servicos.cadastro_servico(nome_servico, valor, id_categoria, duracao)
+
+                        produto_ids_quant = {}
+                        adicionar_produto = input("Deseja adicionar produtos ao serviço? (s/n): ").strip().lower()
+                        while adicionar_produto == 's':
+                            print("Produtos já cadastrados:")
+                            produtos = produto.Produto()
+                            print(tabulate.tabulate(produtos.ler_todos_produtos(), headers="keys", tablefmt="fancy_grid"))
+                            produto_id = input("Digite o ID do produto a ser adicionado ao serviço: ")
+                            quantidade = int(input("Digite a quantidade necessária desse produto para o serviço: "))
+                            produto_ids_quant[produto_id] = quantidade
+                            adicionar_produto = input("Deseja adicionar outro produto ao serviço? (s/n): ").strip().lower()
+                        
+                        if produto_ids_quant:
+                            for produto_id, quantidade in produto_ids_quant.items():
+                                u.cadastro_utiliza(servico_id, produto_id, quantidade)
+                        
                     except Exception as e:
                         print(f"Erro ao adicionar serviço: {e}")
 
@@ -373,7 +393,6 @@ class Interface:
 
                 case _:
                     print("Opção inválida. Tente novamente.")
-
 #Agendas ----------------------------------------------------------------------------------------------------
 
     def display_opcao_agendas(self):
@@ -408,7 +427,7 @@ class Interface:
                     try:
                         print("Disponibilidades já cadastradas:")
                         print(tabulate.tabulate(disponibilidades.ler_todas_disponibilidades(), headers="keys", tablefmt="fancy_grid"))
-                        dia = input("Digite o dia da agenda (dd/mm/aaaa):")
+                        dia = input("Digite o dia da agenda (mm/dd/aaaa):")
                         horario = input("Digite o horario da agenda:")
                         id_funcionario = input("Digite o id do funcionário:")
 
@@ -442,7 +461,7 @@ class Interface:
 
                 case 5:
                     id_agenda = input("ID da agenda a ser deletada: ")
-                    agenda.deletar_agenda(id_agenda)
+                    agenda.deletar(id_agenda)
                     
                 case 6:
                     input("Pressione Enter para voltar ao menu principal...")
@@ -646,20 +665,19 @@ class Interface:
         compras = compra.Compra()
         agenda = agendas.Agenda()
 
-        while input_opcao != 6:
+        while input_opcao != 4:
             print("==============================\n"
                   "--- Menu Pagamentos ---\n"
                   "1 - Listar pagamentos\n"
-                  "2 - Registrar pagamento produto\n"
+                  "2 - Ver um pagamento\n"
                   "3 - Registrar pagamento serviço\n"
-                  "4 - Ver um pagamento\n"
-                  "5 - Voltar\n"
+                  "4 - Voltar\n"
                   "==============================")
 
             try:
-                input_opcao = int(input("Escolha uma opção (1-5): "))
+                input_opcao = int(input("Escolha uma opção (1-3): "))
             except ValueError:
-                print("Entrada inválida. Por favor, insira um número entre 1 e 5.")
+                print("Entrada inválida. Por favor, insira um número entre 1 e 3.")
                 continue
 
             match input_opcao:
@@ -667,27 +685,8 @@ class Interface:
                     print("Listando Pagamentos...")
                     print(tabulate.tabulate(pagamento.ler_todos_pagamentos(), headers="keys", tablefmt="fancy_grid"))
 
+            
                 case 2:
-                    try:
-                        print(tabulate.tabulate(compras.ler_todas_compras(), headers="keys", tablefmt="fancy_grid"))
-                        id_compra = input("Digite o ID da compra associada ao pagamento: ")
-                        metodo_pagamento = input("Digite o método de pagamento (ex: 'DINHEIRO','CARTAO_DEBITO','CARTAO_CREDITO','PIX','TRANSFERENCIA': ")
-                        pagamento.registrar_pagamento_produto(id_compra, metodo_pagamento)
-
-                    except Exception as e:
-                        print(f"Erro ao adicionar pagamento: {e}")
-
-                case 3:
-                    try:
-                        print(tabulate.tabulate(agenda.ler_toda_agenda(), headers="keys", tablefmt="fancy_grid"))
-                        id_agenda = input("Digite o ID da agenda associada ao pagamento: ")
-                        metodo_pagamento = input("Digite o método de pagamento (ex: 'DINHEIRO','CARTAO_DEBITO','CARTAO_CREDITO','PIX','TRANSFERENCIA': ")
-                        pagamento.registrar_pagamento_servico(id_agenda, metodo_pagamento)
-
-                    except Exception as e:
-                        print(f"Erro ao adicionar pagamento: {e}")
-
-                case 4:
                     id_pagamento = input("ID do pagamento a ser visualizado: ")
                     resultado = pagamento.ler_um_pagamento(id_pagamento)
                     if len(resultado) == 0:
@@ -695,7 +694,17 @@ class Interface:
                     else:
                         print(tabulate.tabulate(resultado, headers="keys", tablefmt="fancy_grid"))
 
-                case 5:
+                case 3:
+                    try:
+                        print(tabulate.tabulate(agenda.ler_toda_agenda(), headers="keys", tablefmt="fancy_grid"))
+                        id_agenda = input("Digite o ID da agenda associada ao pagamento: ")
+                        metodo_pagamento = input("Digite o método de pagamento (ex: 'DINHEIRO','CARTAO_DEBITO','CARTAO_CREDITO','PIX','TRANSFERENCIA': ")
+                        agenda.confirmar_servico(id_agenda, metodo_pagamento)
+
+                    except Exception as e:
+                        print(f"Erro ao adicionar pagamento: {e}")
+                
+                case 4:
                     input("Pressione Enter para voltar ao menu principal...")
                     break
 

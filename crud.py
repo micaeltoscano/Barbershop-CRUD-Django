@@ -43,7 +43,7 @@ class Crud(Banco):
         
     def pesquisar_nome(self, nome):
         try:
-            pesquisa = self.processar(f"SELECT * FROM {self.tabela} WHERE nome = %s", (nome,), fetch = True)
+            pesquisa = self.processar(f"SELECT * FROM {self.tabela} WHERE nome LIKE %s", (f"%{nome}%",), fetch = True)
             if pesquisa:
                 return pesquisa
             else:
