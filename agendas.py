@@ -62,19 +62,19 @@ class Agenda(Crud):
 
     #FUNCAO PARA ATUALIZAÇÃO  - Precisa corrigir a disponibilidade do funcionario quando altera a agenda
     def atualizar_agenda(self, coluna, novo_valor, id):
-        if coluna in ['id_funcionario', 'id_servico', 'dia', 'horario']:
-            #PROCURAR AGENDAMENTO ASSOCIADO Á ALTERAÇÃO
-            agendamento = self.ler_um_agenda(id)
-            #debug: print(agendamento[0]['horario'])
-            if not agendamento:
-                return 
-            
-            #ATUALIZAÇÃO DO NOME DA COLUNA E CONSULTA DOS ATRIBUTOS NECESSARIOS PARA REALIZAR A VERIFICACAO:
-            agendamento[0][coluna] = novo_valor
-            id_funcionario = agendamento[0]['id_funcionario']
-            horario = agendamento[0]['horario']
-            dia = agendamento[0]['dia']
-            id_servico = agendamento[0]['id_servico']
+
+        #PROCURAR AGENDAMENTO ASSOCIADO Á ALTERAÇÃO
+        agendamento = self.ler_um_agenda(id)
+        #debug: print(agendamento[0]['horario'])
+        if not agendamento:
+            return 
+        
+        #ATUALIZAÇÃO DO NOME DA COLUNA E CONSULTA DOS ATRIBUTOS NECESSARIOS PARA REALIZAR A VERIFICACAO:
+        agendamento[0][coluna] = novo_valor
+        id_funcionario = agendamento[0]['id_funcionario']
+        horario = agendamento[0]['horario']
+        dia = agendamento[0]['dia']
+        id_servico = agendamento[0]['id_servico']
 
             #VERIFICACAO:
             disponibilidade = Disponibilidade()
@@ -89,8 +89,10 @@ class Agenda(Crud):
             if not servico.verificar_servico(id_funcionario, horario, dia, id_servico):
                 raise ValueError("Serviço não pode ser agendado nesse horário.")
 
-        #ATUALIZA A COLUNA 
+        #ATUALIZA A COLUNA
         return super().atualizar(coluna, novo_valor, id)
+
+    
 
     #FUNCAO DE DELETAR
     def deletar(self, id):

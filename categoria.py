@@ -3,12 +3,12 @@ from crud import Crud
 class Categoria(Crud):
 
     tabela = 'categoria'
-    colunas_permitidas = ['nome_categoria']
+    colunas_permitidas = ['nome']
     coluna_id = 'idcategoria'
 
     def cadastro_categoria(self, nome_categoria):
         super().cadastro(
-            nome_categoria = nome_categoria
+            nome = nome_categoria
         )
 
     def ler_todas_categorias(self):
