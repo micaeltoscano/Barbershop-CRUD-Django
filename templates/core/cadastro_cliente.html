@@ -43,6 +43,30 @@
                             <div class="form-text">Formato: (11) 99999-9999</div>
                         </div>
                     </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="cidade" class="form-label">Cidade <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cidade" name="cidade" required 
+                                   placeholder="Digite a cidade">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Preferências <span class="text-danger">*</span></label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_flamengo" name="is_flamengo" value="true">
+                                <label class="form-check-label" for="is_flamengo">
+                                    Torce para o Flamengo
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_onepiece" name="is_onepiece" value="true">
+                                <label class="form-check-label" for="is_onepiece">
+                                    É fã de One Piece
+                                </label>
+                            </div>
+                            <div class="form-text">Clientes de Souza, fãs de One Piece ou do Flamengo ganham 10% de desconto!</div>
+                        </div>
+                    </div>
                     
                     <div class="mb-4">
                         <label for="endereco" class="form-label">Endereço</label>
@@ -69,6 +93,10 @@
                     Campos marcados com <span class="text-danger">*</span> são obrigatórios.
                     Após o cadastro, o cliente será redirecionado para a lista de clientes.
                 </p>
+                <p class="card-text text-success">
+                    <strong>Benefício especial:</strong> Clientes de Souza, fãs de One Piece ou torcedores do Flamengo 
+                    recebem 10% de desconto em todos os produtos!
+                </p>
             </div>
         </div>
     </div>
@@ -76,9 +104,6 @@
 
 <script>
 
-
-
-<style>
 .card {
     border: none;
     border-radius: 0.5rem;
@@ -104,6 +129,10 @@
 
 .shadow-sm {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.form-check {
+    margin-bottom: 0.5rem;
 }
 </style>
 {% endblock %}

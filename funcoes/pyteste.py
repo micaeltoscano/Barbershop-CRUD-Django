@@ -12,6 +12,10 @@ from pagamentos import Pagamento
 from compra import Compra
 from itens_compra import Itens_compra
 from datetime import datetime
+from psycopg2 import IntegrityError
+from django.contrib import messages
+from django.http import JsonResponse
+
 
 agenda = Agenda()
 funcionario = Funcionario()
@@ -49,7 +53,23 @@ itenscompra = Itens_compra()
 #print(servico.pesquisar_nome('raspagem de caneco'))
 
 
-#funcionario.cadastrar_funcionario('micael', 'a@gmail.com', '11538620421', 'novo_add', '99999999999', 15000, 'caneco')
+#funcionario.cadastrar_funcionario('micael', 'a@gmail.com', '1, 'novo_add', '99999999999', 15000, 'caneco')
 
-print(utiliza.ler_todos_utiliza())
+#uncionario.deletar_funcionario(1)
+#funcionario.atualizar_funcionario('status', 'INATIVO', 2)
+#print(compra.ler_todas_compras())
 
+# id_funcionario = funcionario.processar("SELECT idfuncionario FROM FUNCIONARIO WHERE CPF = %s", ('12312322212',), fetch=True)
+
+# id_funcionario = id_funcionario[0]['idfuncionario']
+
+# try:
+#     funcionario_id = funcionario.cadastrar_funcionario(
+#         'antonio', 'micael#@gmail.com', '33333333333',
+#         'Rua A, 123', '11999999999', 3000, 'Cabeleireiro'
+#     )
+# except IntegrityError as e:
+#     print(f"Erro ao cadastrar funcionário: {str(e)}")
+
+# status = funcionario.processar("SELECT STATUS FROM FUNCIONARIO WHERE IDFUNCIONARIO = %s", (5,), fetch=True)[0]['status']
+# print(type(status))

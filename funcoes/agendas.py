@@ -17,7 +17,9 @@ class Agenda(Crud):
             jaagendado = self.processar(
                                         """ SELECT 1 
                                             FROM agenda 
-                                            WHERE dia = %s AND horario = %s AND id_funcionario = %s""",
+                                            WHERE dia = %s AND horario = %s 
+                                            AND id_funcionario = %s
+                                            AND status = 'ATIVO' """,
                                         (dia, horario, id_funcionario),
                                         fetch=True
                                     )
@@ -29,7 +31,7 @@ class Agenda(Crud):
         except Exception as e:
             raise ValueError(f"Erro ao verificar se havia agendamento para o funcionário no dia: {e}")
 
-    def cadastrar_agenda(self, dia, horario, id_funcionario, id_servico, id_cliente, status='agendado'):
+    def cadastrar_agenda(self, dia, horario, id_funcionario, id_servico, id_cliente, status='ATIVO'):
 
         disponibilidade = Disponibilidade()
         servico = Servico()
@@ -57,11 +59,15 @@ class Agenda(Crud):
     def ler_toda_agenda(self):
         return super().ler_todos()
     
+    def ler_todas_agendas_ativas(self):
+        return super().ler_todos_ativos()
+    
     def ler_um_agenda(self, id):
         return super().listar_um(id)
 
     #FUNCAO PARA ATUALIZAÇÃO
     def atualizar_agenda(self, coluna, novo_valor, id):
+
         if coluna in ['id_funcionario', 'id_servico', 'dia', 'horario']:
             #PROCURAR AGENDAMENTO ASSOCIADO Á ALTERAÇÃO
             agendamento = self.ler_um_agenda(id)
@@ -99,8 +105,15 @@ class Agenda(Crud):
     #FUNCAO PARA CONFIRMAR O ENCERRAMENTO DO SERVICO
     def confirmar_servico(self, id_agenda, metodo_pagamento):
         try:     
+            
+            agendamento = self.ler_um_agenda(id_agenda)
+            if not agendamento:
+                raise ValueError(f"Agendamento de ID {id_agenda} não encontrado.")
+            if agendamento[0]['status'] != 'ATIVO':
+                raise ValueError(f"Agendamento de ID {id_agenda} não está ativo e não pode ser confirmado.")
+            
             #ATUALIZA O STATUS DA AGENDA PARA CONCLUIDO
-            self.atualizar_agenda("status", "concluido", id_agenda)
+            self.atualizar_agenda("status", "CONCLUIDO", id_agenda)
             print("to aqui")
             #REGISTRA UM PAGAMENTO NA TABELA DE PAGAMENTOS
             pagamento = Pagamento()
@@ -115,17 +128,29 @@ class Agenda(Crud):
             if not consulta:
                 raise ValueError(f"Serviço não encontrado para o agendamento ID {id_agenda}.")
             
-           
             #COM O ID, ATUALIZA O ESTOQUE COM A QUANTIDADE DE PRODUTOS QUE FORAM USADOS DURANTE O SERVICO
             id_servico = consulta[0]['id_servico']
-            estoque = Estoque()
-            estoque.atualizar_quantidade(origem='servico', id_origem=id_servico) 
-            
+            # VERIFICA SE O SERVIÇO UTILIZA PRODUTOS
+            produtos_usados = self.processar(
+                                            """ SELECT 1
+                                                FROM UTILIZA
+                                                WHERE ID_SERVICO = %s """,
+            (id_servico,), fetch=True
+        )
+            if produtos_usados:
+
+                estoque = Estoque()
+                estoque.atualizar_quantidade(origem='servico', id_origem=id_servico)
+
+                print(f"Estoque atualizado para o serviço {id_servico}.")
+
+            else:
+                print(f"Serviço {id_servico} não utiliza produtos, estoque não alterado.")
+        
             print(f"Serviço {id_agenda} confirmado com sucesso!")
 
         except Exception as e:
             raise ValueError(f"Erro ao confirmar serviço e registrar pagamento: {e}")
-
             
 
 

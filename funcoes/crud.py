@@ -1,4 +1,5 @@
 from banco import Banco
+from psycopg2 import IntegrityError
 
 class Crud(Banco):
     tabela = None
@@ -25,8 +26,13 @@ class Crud(Banco):
             
             print(f"registro em {self.tabela} cadastrado com sucesso ")    
 
-        except Exception as e:
-            raise ValueError(f"Ocorreu um erro durante o cadastro na tabela {self.tabela}: {e}")
+        except IntegrityError as e:
+            # Apenas mostra a mensagem amigável
+            if 'funcionario_email_key' in str(e):
+                print("Esse e-mail já está cadastrado!")
+            else:
+                print(f"Erro de integridade: {e}")
+            raise  # relança se precisar de tratamento externo
        
     def ler_todos(self):
         try:
@@ -86,9 +92,13 @@ class Crud(Banco):
                 print("Registro atualizado com sucesso!")
                 return True  
 
-        except Exception as e:
-            print(f"Erro ao atualizar {self.tabela}: {e}")
-            return False  # Retorna False indicando falha
+        except IntegrityError as e:
+            
+            if 'funcionario_email_key' in str(e):
+                print("Esse e-mail já está cadastrado!")
+            else:
+                print(f"Erro de integridade: {e}")
+            raise 
 
     def deletar(self, id):
         

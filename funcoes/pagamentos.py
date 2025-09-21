@@ -46,17 +46,14 @@ class Pagamento(Crud):
         try:
     
             buscar_valor = self.processar(
-                """SELECT SUM(P.VALOR * IC.QUANTIDADE)
-                FROM ITENS_COMPRA IC
-                INNER JOIN PRODUTO P ON IC.ID_PRODUTO = P.IDPRODUTO
-                WHERE IC.ID_COMPRA = %s""",
+                """SELECT VALOR_TOTAL FROM COMPRA WHERE IDCOMPRA = %s""",
                 (id_compra,), fetch=True
             )
             
         except Exception as e:
             raise ValueError(f"Erro ao buscar valor do produto: {e}")
             
-        valor_total = buscar_valor[0]['sum']
+        valor_total = buscar_valor[0]['valor_total']
             
         super().cadastro(
             id_agenda=None,

@@ -66,7 +66,7 @@
                     <h5 class="mb-3"><i class="fas fa-clock me-2"></i>Disponibilidade</h5>
                     
                     <div id="disponibilidade-container">
-                        <!-- Primeiro bloco de horário -->
+                        
                         <div class="disponibilidade-item card mb-3">
                             <div class="card-body">
                                 <div class="row">
@@ -140,15 +140,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const firstItem = container.querySelector('.disponibilidade-item');
         const newItem = firstItem.cloneNode(true);
         
-        // Limpar valores do novo item
+       
         newItem.querySelectorAll('select').forEach(select => {
             select.value = '';
         });
         
-        // Mostrar botão de remover no novo item
+        
         newItem.querySelector('.btn-remover').style.display = 'block';
         
-        // Adicionar evento de remover
+       
         newItem.querySelector('.btn-remover').addEventListener('click', function() {
             if (container.querySelectorAll('.disponibilidade-item').length > 1) {
                 newItem.remove();
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
         container.appendChild(newItem);
     });
     
-    // Adicionar evento de remover para todos os botões existentes
+   
     document.querySelectorAll('.btn-remover').forEach(btn => {
         btn.addEventListener('click', function() {
             if (container.querySelectorAll('.disponibilidade-item').length > 1) {

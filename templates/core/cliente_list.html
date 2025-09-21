@@ -60,6 +60,7 @@
                             <th>ID</th>
                             <th>Nome</th>
                             <th>Email</th>
+                            <th>CPF</th>
                             <th>Celular</th>
                             <th>Endereço</th>
                         </tr>
@@ -70,6 +71,7 @@
                             <td>{{ cliente.idcliente }}</td>
                             <td>{{ cliente.nome }}</td>
                             <td>{{ cliente.email }}</td>
+                            <td>{{ cliente.cpf }}</td>
                             <td>{{ cliente.numero_celular }}</td>
                             <td>{{ cliente.endereco }}</td>
                         </tr>
@@ -78,7 +80,6 @@
                 </table>
             </div>
             
-            <!-- Paginação -->
             {% if clientes.has_other_pages %}
             <nav aria-label="Navegação de página" class="mt-4">
                 <ul class="pagination justify-content-center">
@@ -137,7 +138,6 @@
     </div>
 </div>
 
-<!-- Estilos adicionais -->
 <style>
     .form-label {
         font-weight: 500;

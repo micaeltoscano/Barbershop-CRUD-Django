@@ -1,6 +1,7 @@
 import psycopg2
 import os
 from dotenv import load_dotenv
+from psycopg2 import IntegrityError, ProgrammingError
 
 load_dotenv()
 
@@ -49,10 +50,20 @@ class Banco:
                     conn.commit() #CONFIRMA AS ALTERAÇÕES FEITAS 
                     return cur.rowcount #UM CONTADOR PARA SABER QUANTAS LINHAS FORAM RETORNADAS (USA NAS CONSULTAS PARA SABER SE JÁ ESTA CADASTRADO, AGENDADO, ETC)
             
+        except IntegrityError as e:
+            conn.rollback()
+            print(f"Erro de integridade: {e}")
+            raise  # relança para o chamador decidir o que fazer
+
+        except ProgrammingError as e:
+            conn.rollback()
+            print(f"Erro de programação SQL: {e}")
+            raise
+
         except Exception as e:
-            print("Erro ao executar query:", e)
-            conn.rollback() #EVITA QUE ALTERAÇÕES SEJAM FEITAS EM CASO DE ERRO
-            return None
-        
+            conn.rollback()
+            print(f"Erro ao executar query: {e}")
+            raise
+
         finally:
             conn.close()

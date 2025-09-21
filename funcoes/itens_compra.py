@@ -1,4 +1,5 @@
 from crud import Crud
+from decimal import Decimal
 
 class Itens_compra(Crud):
 
@@ -46,3 +47,32 @@ class Itens_compra(Crud):
 
     def ler_todos_itens_compra(self):
         return super().ler_todos()
+    
+    def receber_produtos_django(self, id_compra, produtos_selecionados, quantidades, desconto=0):
+        for i, id_produto in enumerate(produtos_selecionados):
+            if id_produto and quantidades[i]:
+                try:
+                    quantidade = int(quantidades[i])
+                    if quantidade > 0:
+                        # Consulta o valor do produto
+                        consulta = self.processar(
+                        "SELECT VALOR FROM PRODUTO WHERE IDPRODUTO = %s",
+                        (id_produto,), fetch=True
+                        )
+                    if consulta:
+                        valor_unitario = Decimal(str(consulta[0]['valor']))
+                        # Aplicar desconto - converter tudo para Decimal
+                        fator_desconto = Decimal('1.0') - desconto
+                        valor_total_item = valor_unitario * Decimal(quantidade) * fator_desconto
+
+                        # Cadastra o item na tabela
+                        super().cadastro(
+                            id_compra=id_compra,
+                            id_produto=int(id_produto),
+                            quantidade=quantidade,
+                            valor_unitario=float(valor_unitario),  # Converter para float se necessário
+                            valor_total_item=float(valor_total_item)  # Converter para float se necessário
+                                    )
+                except (ValueError, IndexError) as e:
+                    print(f"Erro ao processar produto: {e}")
+                    continue

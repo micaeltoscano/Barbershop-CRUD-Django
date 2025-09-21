@@ -6,7 +6,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-money-bill-wave"></i> Lista de Pagamentos</h2>
     <div>
-        <a href="{% url 'registrar_pagamento_servico' %}" class="btn btn-secondary">
+        <a href="{% url 'registrar_pagamento' %}" class="btn btn-secondary">
             <i class="fas fa-plus"></i> Novo Pagamento
         </a>
         <a href="{% url 'home' %}" class="btn btn-outline-secondary ms-2">
@@ -49,7 +49,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Origem</th>
-                            <th>ID Origem</th>
+                            <th>ID Compra</th>
                             <th>Valor (R$)</th>
                             <th>Forma de Pagamento</th>
                             <th>Data</th>

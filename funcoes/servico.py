@@ -3,7 +3,7 @@ from crud import Crud
 class Servico(Crud):
 
     tabela = "servico"
-    colunas_permitidas = ['nome', 'valor', 'id_categoria','duracao']
+    colunas_permitidas = ['nome', 'valor', 'id_categoria','duracao', 'status']
     coluna_id = 'idservico'
 
     def cadastro_servico(self, nome, valor, id_categoria, duracao):
@@ -20,6 +20,9 @@ class Servico(Crud):
 
     def ler_todos_servicos(self):
         return super().ler_todos()
+    
+    def ler_todos_servicos_ativos(self):
+        return super().ler_todos_ativos()
     
     def pesquisar_nome(self, nome):
         return super().pesquisar_nome(nome)
@@ -64,7 +67,8 @@ class Servico(Crud):
                                                             AND NOT (
                                                                 %s + interval '%s minute' <= a.horario
                                                                 OR %s >= a.horario + s.duracao * interval '1 minute'
-                                                            )""",
+                                                            )
+                                                            AND A.STATUS = 'ATIVO' """,
                                                         (id_funcionario, dia, horario, duracao_servico, horario),
                                                         fetch=True
                                                     )

@@ -26,7 +26,22 @@
                 <input type="number" class="form-control" id="id_estoque_busca" name="id_estoque_busca" 
                        value="{{ request.GET.id_estoque_busca }}" placeholder="Digite o ID do estoque">
             </div>
-            
+
+<div class="col-md-3">
+                <label for="estoque_minimo" class="form-label">Filtro de Estoque</label>
+                <select class="form-select" id="estoque_minimo" name="estoque_minimo">
+                    <option value="">Todos os itens</option>
+                    <option value="5" {% if request.GET.estoque_minimo == "5" %}selected{% endif %}>
+                        Com pelo menos 5 unidades
+                    </option>
+                    <option value="baixo" {% if request.GET.estoque_minimo == "baixo" %}selected{% endif %}>
+                        Estoque baixo
+                    </option>
+                    <option value="normal" {% if request.GET.estoque_minimo == "normal" %}selected{% endif %}>
+                        Estoque normal
+                    </option>
+                </select>
+            </div>
             
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">
@@ -40,7 +55,7 @@
     </div>
 </div>
 
-<!-- Resultados da Busca -->
+
 <div class="card">
     <div class="card-body">
         {% if estoques %}
