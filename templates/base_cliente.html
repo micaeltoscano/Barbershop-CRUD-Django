@@ -20,46 +20,15 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">
+                        <a class="nav-link" href="{% url 'home_cliente' %}">
                             <i class="fas fa-home"></i> Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'cliente_list' %}">
-                            <i class="fas fa-users"></i> Clientes
+                        <a class="nav-link" href="{% url 'compras_cliente' %}">
+                            <i class="fas fa-shopping-cart"></i> Meus agendamentos
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'listar_funcionarios' %}">
-                            <i class="fas fa-user-tie"></i> Funcionários
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'lista_agenda' %}">
-                            <i class="fas fa-calendar-alt"></i> Agenda
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'lista_servico' %}">
-                             <i class="fas fa-concierge-bell"></i> Serviços
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="">
-                            <i class="fas fa-boxes"></i> Estoque
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-money-bill-wave"></i> Pagamentos
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'relatorios' %}">
-                            <i class="fas fa-chart-line report-icon"></i> Relatorios
-                        </a>
-                    </li>
+                    </li> 
                 </ul>
             </div>
         </div>

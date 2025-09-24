@@ -107,7 +107,10 @@ class Compra(Crud):
         #ATUALIZA O ESTOQUE
         estoque.atualizar_quantidade('venda', id_compra)
 
-        messages.info(request, f"Compra {id_compra} registrada com sucesso! Total: {total_compra}.Total sem desconto: {total_compra / (1 - desconto) if desconto > 0 else total_compra}")
+        messages.info(
+            request,
+            f"Compra registrada com sucesso! Total: {total_compra:.2f}. Total sem desconto: {total_compra / (1 - desconto) if desconto > 0 else total_compra:.2f}"
+        )
 
         
 

@@ -128,4 +128,4 @@ class Estoque(Crud):
                         f"({estoque_atual} disponível, tentativa de retirar {quantidade})."
                     )
                 
-                self.atualizar_estoque('quantidade_atual', estoque_atual, id_estoque)
+                self.atualizar_estoque('quantidade_atual', novo_estoque, id_estoque)
