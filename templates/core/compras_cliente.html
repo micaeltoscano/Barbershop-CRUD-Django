@@ -1,54 +1,111 @@
 {% extends 'base_cliente.html' %}
 
-{% block title %}Área do Cliente - Caneco's Barber{% endblock %}
+{% block title %}Minhas Compras - Caneco's Barber{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="text-center mb-5">
-        <h1 class="display-4"><i class="fas fa-cut"></i> Caneco's Barber</h1>
-        <p class="lead">Bem-vindo à sua área exclusiva de cliente</p>
+        <h1 class="display-4"><i class="fas fa-receipt"></i> Minhas Compras</h1>
+        <p class="lead">Histórico completo de suas compras realizadas</p>
+        
+        <!-- Botão para voltar -->
+        <a href="{% url 'home_cliente' %}" class="btn btn-outline-secondary mb-3">
+            <i class="fas fa-arrow-left"></i> Voltar para Área do Cliente
+        </a>
     </div>
 
-    <div class="row justify-content-center">
-
-        <!-- Card de Compras -->
-        <div class="col-md-5 mb-4">
-            <div class="card h-100 shadow">
-                <div class="card-body text-center">
-                    <i class="fas fa-shopping-cart fa-3x text-success mb-3"></i>
-                    <h5 class="card-title">Comprar Produtos</h5>
-                    <p class="card-text">Acesse a loja e faça suas compras diretamente.</p>
+    <!-- Resumo do Cliente --> 
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> Informações do Cliente</h5>
                 </div>
-                <div class="card-footer bg-transparent">
-                    <a href="{% url 'comprar' %}" class="btn btn-success btn-sm w-100">
-                        <i class="fas fa-cart-plus"></i> Comprar Agora
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card de Histórico de Compras -->
-        <div class="col-md-5 mb-4">
-            <div class="card h-100 shadow">
-                <div class="card-body text-center">
-                    <i class="fas fa-receipt fa-3x text-primary mb-3"></i>
-                    <h5 class="card-title">Minhas Compras</h5>
-                    <p class="card-text">Consulte o histórico das suas compras informando o CPF.</p>
-
-                    <!-- Formulário para buscar por CPF -->
-                    <form method="post" action="{% url 'ver_compras_cliente' %}">
-                        {% csrf_token %}
-                        <div class="input-group">
-                            <input type="text" name="cpf_cliente" class="form-control" placeholder="Digite seu CPF" required>
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fas fa-search"></i> Buscar
-                            </button>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Nome:</strong> {{ cliente }}</p>
+                            <p><strong>CPF:</strong> {{ cpf }}</p>
                         </div>
-                    </form>
+                        <div class="col-md-6">
+                            <p><strong>Total de Compras:</strong> {{ compras|length }}</p>
+                            <p><strong>Valor Total Gasto:</strong> R$ {{ total_gasto|floatformat:2 }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
+    <!-- Lista de Compras -->
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            {% if compras %}
+                <div class="card shadow">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="fas fa-shopping-bag"></i> Histórico de Compras</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for compra in compras %}
+                        <div class="card mb-3 border-{% if forloop.first %}primary{% else %}light{% endif %}">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-calendar-alt"></i> 
+                                    Compra #{{ compra.id }} - {{ compra.data_compra|date:"d/m/Y H:i" }}
+                                </h6>
+                                <span class="badge bg-{% if compra.status == 'Concluída' %}success{% else %}warning{% endif %}">
+                                    {{ compra.status }}
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Valor Total:</strong> R$ {{ compra.valor_total|floatformat:2 }}</p>
+                                        <p><strong>Forma de Pagamento:</strong> {{forma_pagamento }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Itens:</strong></p>
+                                        <ul class="list-unstyled">
+                                            {% for item in compra.itens.all %}
+                                            <li>
+                                                <i class="fas fa-cube"></i> 
+                                                {{ item.produto.nome }} - 
+                                                {{ item.quantidade }} x R$ {{ item.preco_unitario|floatformat:2 }}
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i> 
+                                        Código da transação: {{ compra.codigo_transacao }}
+                                    </small>
+                                    <a href="{% url 'home_cliente'%}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i> Ver Detalhes
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <!-- Card para quando não há compras -->
+                <div class="card shadow text-center">
+                    <div class="card-body py-5">
+                        <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                        <h4>Nenhuma compra encontrada</h4>
+                        <p class="text-muted">Você ainda não realizou nenhuma compra em nossa loja.</p>
+                        <a href="{% url 'cliente_pagar' %}" class="btn btn-primary">
+                            <i class="fas fa-cart-plus"></i> Fazer Primeira Compra
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
@@ -60,11 +117,20 @@
 }
 
 .card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
 }
 
-.card-footer {
-    border-top: 1px solid rgba(0,0,0,0.1);
+.card-header {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+
+.badge {
+    font-size: 0.8rem;
+}
+
+.list-unstyled li {
+    padding: 2px 0;
+    border-bottom: 1px solid #f8f9fa;
 }
 
 .btn {

@@ -7,6 +7,7 @@ urlpatterns = [
     path('cliente/', views.pagina_compra_cliente, name='home_cliente'),
     path('cliente/compras/', views.compras_cliente, name='compras_cliente'),
     path('cliente/pagar/', views.cliente_pagar, name='cliente_pagar'),
+    path('cliente/buscar-por-cpf/', views.buscar_cliente_por_cpf, name='buscar_cliente_por_cpf'),
     path('funcionario/', views.pagina_funcionario, name='home'),
 
     path('clientes/', views.cliente_list_view, name='cliente_list'),

@@ -19,6 +19,32 @@ from funcoes.compra import Compra
 from funcoes.itens_compra import Itens_compra
 from decimal import Decimal
 
+def buscar_cliente_por_cpf(request):
+    cliente = None
+    compras = []
+    total_gasto = 0
+
+    if request.method == "POST":
+        cpf = request.POST.get('cpf_cliente')
+        c = Clientes()
+        cliente = c.buscar_por_cpf(cpf)
+        
+        if cliente:
+            #Buscando as compras do cliente com o CPF fornecido
+            compras = Compra.objects.filter(cliente_id=cliente['idcliente'])
+            total_gasto = sum([compra.valor_total for compra in compras])
+        else:
+            messages.error(request, "Cliente não encontrado.")
+            return render(request, 'core/home_cliente.html')
+
+    context = {
+        'cliente': cliente,
+        'compras': compras,
+        'total_gasto': total_gasto,
+        'cpf': cpf
+    }
+    return render(request, 'compras_cliente.html', context)
+
 def cliente_funcionario(request):
     return render(request, 'core/cliente_funcionario.html')
 
@@ -29,7 +55,59 @@ def pagina_funcionario(request):
     return render(request, 'core/home.html')
 
 def compras_cliente(request):
-    return render(request, 'core/compras_cliente.html')
+        cliente = None
+        compras = []
+        total_gasto = 0
+
+        if request.method == "POST":
+            cpf = request.POST.get('cpf_cliente')
+            cliente_id = None
+            c = Clientes()
+            cliente_id = c.buscar_por_cpf(cpf)
+
+            if cliente_id:
+                #Buscando as compras do cliente com o CPF fornecido
+                compras = Compra().processar("SELECT * FROM COMPRA WHERE id_cliente = %s", (cliente_id,), fetch=True)
+                cliente = c.ler_um_cliente(cliente_id)[0]['nome']
+                total_gasto = sum([compra['valor_total'] for compra in compras])
+
+                for compra in compras:
+                    compra_id = compra['idcompra']  # pega o id da compra
+
+                    # Pega todos os itens daquela compra
+                    itens = Itens_compra().processar(
+                        "SELECT ic.iditenscompra, p.nome as produto, ic.quantidade, ic.valor_unitario, ic.valor_total_item "
+                        "FROM itens_compra ic "
+                        "JOIN produto p ON ic.id_produto = p.idproduto "
+                        "WHERE ic.id_compra = %s",
+                        (compra_id,), fetch=True
+                    )
+
+                    # Pega a forma de pagamento daquela compra
+                    forma_pagamento = Pagamento().processar(
+                        "SELECT forma_pagamento FROM pagamento WHERE id_compra = %s",
+                        (compra_id,), fetch=True
+                    )
+
+                    # Adiciona os itens e a forma de pagamento dentro do dicionário da compra
+                    compra['itens'] = itens
+                    compra['forma_pagamento'] = forma_pagamento[0]['forma_pagamento'] if forma_pagamento else None
+                print('FORMA DE PAGAMENTO:', forma_pagamento) #DEBUG
+            else:
+                messages.error(request, "Cliente não encontrado.")
+                return render(request, 'core/home_cliente.html')
+            
+        context = {
+            'cliente': cliente,
+            'compras': compras,
+            'total_gasto': total_gasto,
+            'cpf': cpf,
+            'itens' : itens,
+            'forma_pagamento': forma_pagamento
+        }
+
+        return render(request, 'core/compras_cliente.html', context)
+
 
 def cliente_pagar(request):
     if request.method == 'POST':
