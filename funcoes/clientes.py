@@ -33,4 +33,15 @@ class Clientes(Crud):
 
     def deletar_cliente(self, id):
         return super().deletar(id)
+    
+    def buscar_por_cpf(self, cpf: str):
+        try:
+            print('BUSCANDO CLIENTE PELO CPF:', cpf) #DEBUG
+            consulta = self.processar("SELECT idcliente FROM CLIENTE WHERE CPF = %s", (cpf,), fetch=True) #Retorna uma lista de dicionários
+            resultado = consulta[0]['idcliente'] if consulta else None
+
+            print('ID DO CLIENTE PEGO PELO CPF:', resultado) #DEBUG
+            return resultado if resultado else None
+        except Exception as e:
+            raise ValueError(f"Erro ao buscar cliente por CPF: {e}")
         

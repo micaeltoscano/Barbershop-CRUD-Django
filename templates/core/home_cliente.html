@@ -1,0 +1,83 @@
+{% extends 'base_cliente.html' %}
+
+{% block title %}Área do Cliente - Caneco's Barber{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center mb-5">
+        <h1 class="display-4"><i class="fas fa-cut"></i> Caneco's Barber</h1>
+        <p class="lead">Bem-vindo à sua área exclusiva de cliente</p>
+    </div>
+
+    <div class="row justify-content-center">
+
+        <!-- Card de Compras -->
+        <div class="col-md-5 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-shopping-cart fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Comprar Produtos</h5>
+                    <p class="card-text">Acesse a loja e faça suas compras diretamente.</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'cliente_pagar' %}" class="btn btn-success btn-sm w-100">
+                        <i class="fas fa-cart-plus"></i> Comprar Agora
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card de Histórico de Compras -->
+        <div class="col-md-5 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-receipt fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Minhas Compras</h5>
+                    <p class="card-text">Consulte o histórico das suas compras informando o CPF.</p>
+
+                    <!-- Formulário para buscar por CPF -->
+                    <form method="post" action="{% url 'compras_cliente' %}">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" name="cpf_cliente" class="form-control" placeholder="Digite seu CPF" required>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.card {
+    transition: transform 0.2s;
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-footer {
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.btn {
+    border-radius: 0.375rem;
+}
+
+.display-4 {
+    color: #333;
+    font-weight: 300;
+}
+
+.lead {
+    color: #6c757d;
+}
+</style>
+{% endblock %}

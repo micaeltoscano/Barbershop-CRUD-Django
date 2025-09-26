@@ -3,7 +3,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('', views.cliente_funcionario, name='cliente_funcionario'),
+    path('cliente/', views.pagina_compra_cliente, name='home_cliente'),
+    path('cliente/compras/', views.compras_cliente, name='compras_cliente'),
+    path('cliente/pagar/', views.cliente_pagar, name='cliente_pagar'),
+    path('cliente/buscar-por-cpf/', views.buscar_cliente_por_cpf, name='buscar_cliente_por_cpf'),
+    path('funcionario/', views.pagina_funcionario, name='home'),
 
     path('clientes/', views.cliente_list_view, name='cliente_list'),
     path('clientes/novo/', views.cadastrar_cliente, name='cadastrar_cliente'),
@@ -44,6 +49,7 @@ urlpatterns = [
     #path('pagamentos/produto/', views.registrar_pagamento_produto, name='registrar_pagamento_produto'),
 
     path('relatorios/', views.relatorios, name='relatorios'),
+    path('compras-servicos/', views.compras_servicos, name='compras_servicos'),
 
     
 

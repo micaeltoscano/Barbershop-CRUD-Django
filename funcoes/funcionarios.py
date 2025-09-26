@@ -18,10 +18,9 @@ class Funcionario(Crud):
             salario = salario,
             especialidade = especialidade,
         )
-       
-        query = "SELECT IDFUNCIONARIO FROM FUNCIONARIO WHERE CPF = %s"
-        result = self.processar(query, (cpf,), fetch=True)[0]['idfuncionario']
-       
+
+        query = "SELECT IDFUNCIONARIO FROM FUNCIONARIO WHERE CPF = %s ORDER BY IDFUNCIONARIO DESC LIMIT 1"
+        result = self.processar(query, (cpf,))
         return result
     
     def ler_todos_funcionarios(self):

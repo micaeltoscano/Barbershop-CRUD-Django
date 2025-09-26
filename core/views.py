@@ -19,6 +19,177 @@ from funcoes.compra import Compra
 from funcoes.itens_compra import Itens_compra
 from decimal import Decimal
 
+
+#-----------------------CLIENTES-----------------------------------
+
+def buscar_cliente_por_cpf(request):
+    cliente = None
+    compras = []
+    total_gasto = 0
+
+    if request.method == "POST":
+        cpf = request.POST.get('cpf_cliente')
+        c = Clientes()
+        cliente = c.buscar_por_cpf(cpf)
+        
+        if cliente:
+            #Buscando as compras do cliente com o CPF fornecido
+            compras = Compra.objects.filter(cliente_id=cliente['idcliente'])
+            total_gasto = sum([compra.valor_total for compra in compras])
+        else:
+            messages.error(request, "Cliente não encontrado.")
+            return render(request, 'core/home_cliente.html')
+
+    context = {
+        'cliente': cliente,
+        'compras': compras,
+        'total_gasto': total_gasto,
+        'cpf': cpf
+    }
+    return render(request, 'compras_cliente.html', context)
+
+def cliente_funcionario(request):
+    return render(request, 'core/cliente_funcionario.html')
+
+def compras_cliente(request):
+
+    cliente = None
+    compras = []
+    total_gasto = 0
+    cpf = None  # para não dar erro se request.method != POST
+
+    if request.method == "POST":
+
+        cpf = request.POST.get('cpf_cliente')
+        c = Clientes()
+        cliente_id = c.buscar_por_cpf(cpf)
+
+        if cliente_id:
+
+            # Buscando as compras do cliente
+            compras = Compra().processar(
+                "SELECT * FROM COMPRA WHERE id_cliente = %s",
+                (cliente_id,), fetch=True
+            )
+
+            cliente = c.ler_um_cliente(cliente_id)[0]['nome']
+
+            total_gasto = sum([compra['valor_total'] for compra in compras])
+
+            for compra in compras:
+
+                compra_id = compra['idcompra']
+
+                # Pega apenas os nomes dos produtos daquela compra
+                itens = Itens_compra().processar(
+                                                    """SELECT p.nome as produto 
+                                                    FROM itens_compra ic 
+                                                    JOIN produto p ON ic.id_produto = p.idproduto 
+                                                    WHERE ic.id_compra = %s""",
+                                                    (compra_id,), fetch=True
+                )
+
+                # transforma lista de dicts em lista só com os nomes
+                nomes_produtos = [item['produto'] for item in itens]
+
+                # Pega a forma de pagamento
+                forma_pagamento = Pagamento().processar(
+                                                        "SELECT forma_pagamento FROM pagamento WHERE id_compra = %s",
+                                                        (compra_id,), fetch=True)
+
+                # adiciona os dados simplificados à compra
+                compra['itens'] = nomes_produtos
+                compra['forma_pagamento'] = (
+                    forma_pagamento[0]['forma_pagamento'] if forma_pagamento else None
+                )
+        else:
+            messages.error(request, "Cliente não encontrado.")
+            return render(request, 'core/home_cliente.html')
+
+    context = {
+
+        'cliente': cliente,
+        'compras': compras,
+        'total_gasto': total_gasto,
+        'cpf': cpf,
+    }
+
+    return render(request, 'core/compras_cliente.html', context)
+
+def cliente_pagar(request):
+    if request.method == 'POST':
+
+        #PEGA O TIPO DO PAGAMENTO A SER FEITO (SERVIÇO OU PRODUTO) E O METODO DE PAGAMENTO
+        tipo = request.POST.get('tipo_pagamento')
+        metodo_pagamento = request.POST.get('metodo_pagamento')
+        
+        try:
+            if tipo == 'servico':
+
+                #PEGA O ID DA AGENDA
+                id_agenda = request.POST.get('id_agenda')
+                
+                if not id_agenda or not metodo_pagamento:
+                    messages.error(request, "Preencha todos os campos obrigatórios.")
+                    return redirect('cliente_pagar')
+                
+                #CONFIRMA O SERVICO PELA FUNCAO DA CLASSE AGENDA
+                a = Agenda()
+                a.confirmar_servico(int(id_agenda), metodo_pagamento)
+
+                messages.success(request, f"Pagamento do serviço {id_agenda} registrado com sucesso!")
+                return redirect('home_cliente')
+
+            #SE FOR PAGAMENTO DE PRODUTOS
+            elif tipo == 'produto':
+
+                #PEGA O ID DO CLIENTE E O DO FUNCIONARIO QUE REALIZOU AQUELA VENDA
+                pagamento = Pagamento()
+                
+                cpf = request.POST.get('cpf_cliente')
+                id_cliente = pagamento.processar("SELECT IDCLIENTE FROM CLIENTE WHERE CPF = %s", (cpf,), fetch=True)[0]['idcliente']
+                id_funcionario = request.POST.get('id_funcionario')
+                
+                #VERIFICA
+                if not metodo_pagamento or not id_cliente or not id_funcionario:
+                    messages.error(request, "Preencha todos os campos obrigatórios.")
+                    return redirect('cliente_pagar')
+                
+                #CHAMA A CLASSE
+                compra = Compra()
+
+                #RECEBE OS PRODUTOS SELECIONADOS E AS QUANTIDADES REFERENTES
+                produtos_selecionados = request.POST.getlist('produtos')
+                quantidades = request.POST.getlist('quantidades')
+
+                #REGISTRA A COMPRA
+                compra.registrar_compra_django(id_cliente, id_funcionario, metodo_pagamento, produtos_selecionados, quantidades, request)
+                messages.success(request, "Pagamento dos produtos registrado com sucesso!")
+                return redirect('home_cliente')
+
+            
+        except Exception as e:
+            messages.error(request, f"Ocorreu um erro: {str(e)}")
+            return redirect('cliente_pagar')
+    
+    #CARREGAR A LISTA DE PRODUTOS, DEPOIS CLIENTES E FUNCIONARIOS PARA PASSAR P O HTML:
+
+    produtos = Produto()
+    clientes = Clientes()
+    funcionarios = Funcionario()
+
+    produtos = produtos.ler_todos_produtos_ativos()
+    
+    clientes = clientes.ler_todos_clientes()
+    
+    funcionarios = funcionarios.ler_todos_funcionarios_ativos()
+    
+    return render(request, 'core/cliente_pagar.html', {
+        'produtos': produtos,
+        'clientes': clientes,
+        'funcionarios': funcionarios
+    })
+
 def list_view(request, classe, path):
     
     id_busca = request.GET.get('id_busca')
@@ -39,8 +210,6 @@ def list_view(request, classe, path):
     }
     return render(request, path , context)
     
-#-----------------------CLIENTES-----------------------------------
-
 #TODAS AS FUNCOES QUE TIVEREM LIST_VIEW SÃO USADAS PARA EXIBIR OS DADOS NA ABA DE LISTAR
 def cliente_list_view(request):
 
@@ -966,9 +1135,9 @@ def registrar_pagamento(request):
 
                 #PEGA O ID DA AGENDA
                 id_agenda = request.POST.get('id_agenda')
-               
+                id_funcionario = request.POST.get('id_funcionario')
                 
-                if not id_agenda or not metodo_pagamento :
+                if not id_agenda or not metodo_pagamento or not id_funcionario:
                     messages.error(request, "Preencha todos os campos obrigatórios.")
                     return redirect('registrar_pagamento')
                 
@@ -982,7 +1151,10 @@ def registrar_pagamento(request):
             elif tipo == 'produto':
 
                 #PEGA O ID DO CLIENTE E O DO FUNCIONARIO QUE REALIZOU AQUELA VENDA
-                id_cliente = request.POST.get('id_cliente')
+                pagamento = Pagamento()
+                
+                cpf = request.POST.get('cpf_cliente')
+                id_cliente = pagamento.processar("SELECT IDCLIENTE FROM CLIENTE WHERE CPF = %s", (cpf,), fetch=True)[0]['idcliente']
                 id_funcionario = request.POST.get('id_funcionario')
                 
                 #VERIFICA
@@ -1001,7 +1173,6 @@ def registrar_pagamento(request):
                 compra.registrar_compra_django(id_cliente, id_funcionario, metodo_pagamento, produtos_selecionados, quantidades, request)
                 messages.success(request, "Pagamento dos produtos registrado com sucesso!")
 
-                return redirect('lista_pagamento')
             
         except Exception as e:
             messages.error(request, f"Ocorreu um erro: {str(e)}")
@@ -1050,6 +1221,12 @@ def pagamento_list_view(request):
 
 #-----------------------HOME-----------------------------------
 def home(request):
+    return render(request, 'core/home.html')
+
+def pagina_compra_cliente(request):
+    return render(request, 'core/home_cliente.html')
+
+def pagina_funcionario(request):
     return render(request, 'core/home.html')
 
 def relatorios(request):
@@ -1215,3 +1392,33 @@ def relatorios(request):
     }
     
     return render(request, 'core/relatorio.html', context)
+
+# ---------------------- COMPRAS & SERVIÇOS ----------------------
+def compras_servicos(request):
+    """Página para registrar compras e visualizar serviços."""
+    try:
+        produtos = Produto().ler_todos_produtos_ativos()
+    except Exception:
+        produtos = []
+
+    try:
+        clientes = Clientes().ler_todos_clientes()
+    except Exception:
+        clientes = []
+
+    try:
+        funcionarios = Funcionario().ler_todos_funcionarios_ativos()
+    except Exception:
+        funcionarios = []
+
+    try:
+        servicos = Servico().ler_todos_servicos_ativos()
+    except Exception:
+        servicos = []
+
+    return render(request, 'core/compras_servicos.html', {
+        'produtos': produtos,
+        'clientes': clientes,
+        'funcionarios': funcionarios,
+        'servicos': servicos,
+    })
