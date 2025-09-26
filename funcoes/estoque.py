@@ -69,11 +69,6 @@ class Estoque(Crud):
                 'tabela_origem': 'itens_compra',
                 'coluna_origem': 'id_compra',
                 'operacao': -1   
-                },
-            'compra': {                                 #A COMPRA É A COMPRA DE PRODUTOS PELA BARBEARIA
-                'tabela_origem': 'itens_compra',
-                'coluna_origem': 'id_compra',
-                'operacao': 1    
                 }
             }
 
@@ -85,6 +80,7 @@ class Estoque(Crud):
         operacao = config[origem]['operacao']           #RETORNA A OPERAÇÃO A SER REALIZADA 
 
         with transaction.atomic():
+
             #FAZ UMA CONSULTA NAS TABELAS DE ORIGEM PARA PEGAR A QUANTIDADE E O ID DO PRODUTO
             pesquisa = self.processar(f"""SELECT QUANTIDADE, ID_PRODUTO 
                                         FROM {tabela_origem}
@@ -96,6 +92,7 @@ class Estoque(Crud):
 
             #ATUALIZA O ESTOQUE DE CADA PRODUTO UTILIZADO NO SERVIÇO
             for item in pesquisa:
+
                 quantidade = item['quantidade']
                 id_produto = item['id_produto']
             
@@ -120,7 +117,7 @@ class Estoque(Crud):
                 estoque_atual = quantidade_atual_info[0]['quantidade_atual']
 
                 novo_estoque = estoque_atual + (quantidade * operacao)
-
+                
                 if novo_estoque < 0:
 
                     raise ValueError(
@@ -128,4 +125,5 @@ class Estoque(Crud):
                         f"({estoque_atual} disponível, tentativa de retirar {quantidade})."
                     )
                 
-                self.atualizar_estoque('quantidade_atual', estoque_atual, id_estoque)
+                else:
+                    self.atualizar_estoque('quantidade_atual', novo_estoque, id_estoque)

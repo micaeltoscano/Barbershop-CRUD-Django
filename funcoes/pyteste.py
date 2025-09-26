@@ -73,3 +73,8 @@ itenscompra = Itens_compra()
 
 # status = funcionario.processar("SELECT STATUS FROM FUNCIONARIO WHERE IDFUNCIONARIO = %s", (5,), fetch=True)[0]['status']
 # print(type(status))
+
+# print(disponibilidade.ler_todas_disponibilidades())
+# print(funcionario.ler_todos_funcionarios())
+
+#funcionario.cadastrar_funcionario(nome = 'jorge', email = "jorggge@gmail.com", cpf = '22242222322', endereco = 'casa', numero_celular = '947445573', salario = 1900, especialidade = 'caneco')

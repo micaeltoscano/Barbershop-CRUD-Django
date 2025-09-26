@@ -1,5 +1,6 @@
 from crud import Crud
 
+
 class Funcionario(Crud):
 
     tabela = 'funcionario'
@@ -7,6 +8,7 @@ class Funcionario(Crud):
     coluna_id = 'idfuncionario'
 
     def cadastrar_funcionario(self, nome, email, cpf, endereco, numero_celular, salario, especialidade):
+
         super().cadastro(
             nome = nome,
             email = email, 
@@ -16,9 +18,10 @@ class Funcionario(Crud):
             salario = salario,
             especialidade = especialidade,
         )
-
-        query = "SELECT IDFUNCIONARIO FROM FUNCIONARIO WHERE CPF = %s ORDER BY IDFUNCIONARIO DESC LIMIT 1"
-        result = self.processar(query, (cpf,))
+       
+        query = "SELECT IDFUNCIONARIO FROM FUNCIONARIO WHERE CPF = %s"
+        result = self.processar(query, (cpf,), fetch=True)[0]['idfuncionario']
+       
         return result
     
     def ler_todos_funcionarios(self):

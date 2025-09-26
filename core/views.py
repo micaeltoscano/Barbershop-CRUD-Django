@@ -223,6 +223,7 @@ def cadastrar_funcionario(request):
                         d = Disponibilidade()
                         for i in range(len(dias_semana)):
                             if dias_semana[i] and horas_inicio[i] and horas_fim[i]:
+
                                 d.cadastro_disponibilidade(
                                     id_funcionario,  
                                     dias_semana[i],
@@ -236,11 +237,13 @@ def cadastrar_funcionario(request):
                 else:
 
                     funcionario_id = f.cadastrar_funcionario(**dados) #DESEMPACOTA OS DADOS PARA CADASTRAR O FUNCIONARIO
-
+                    messages.success(request, f'Funcionário "{dados["nome"]}" do cpf "{dados["cpf"]}"tem esse ID {funcionario_id}!')
                     #CADASTRA A DISPONIBILIDADE DO FUNCIONARIO
+
                     d = Disponibilidade()
                     for i in range(len(dias_semana)):
                         if dias_semana[i] and horas_inicio[i] and horas_fim[i]:
+                            
                             d.cadastro_disponibilidade(
                                 funcionario_id,  
                                 dias_semana[i],
@@ -317,17 +320,25 @@ def deletar_funcionario(request):
                 f = Funcionario()
                 d = Disponibilidade()
 
+                messages.success(request, f'O ID do funcionario é {id}')
                 #TRANSFORMA O STATUS DO FUNCIONARIO EM INATIVO
                 f.atualizar_funcionario('status', 'INATIVO', id)
 
                 #CONSULTA PARA PEGAR O ID DO FUNCIONARIO
                 iddisponibilidade = d.processar("SELECT IDDISPONIBILIDADE FROM DISPONIBILIDADE WHERE ID_FUNCIONARIO = %s", (id,), fetch=True)[0]['iddisponibilidade']
 
-                #DELETA A DISPONIBILIDADE DELE (CASO SEJA REATIVADO, SERAO PASSADOS NOVOS HORARIOS P ELE, ENTAO NAO É NECESSARIO PERMANECER COM OS HORARIOS ANTIGOS)
-                d.deletar_disponibilidade(iddisponibilidade)
+                if iddisponibilidade:
+
+                    messages.success(request, f'O ID da disponibilidade é {iddisponibilidade}')
+                    #DELETA A DISPONIBILIDADE DELE (CASO SEJA REATIVADO, SERAO PASSADOS NOVOS HORARIOS P ELE, ENTAO NAO É NECESSARIO PERMANECER COM OS HORARIOS ANTIGOS)
+                   
+                    d.deletar_disponibilidade(iddisponibilidade)
                     
-                messages.success(request, 'Funcionario desativado da empresa com sucesso!')
-                return redirect('listar_funcionarios')
+                    messages.success(request, 'Funcionario desativado da empresa com sucesso!')
+                    return redirect('listar_funcionarios')
+                
+                else:
+                    messages.error(request, f'Nenhuma disponibilidade encontrada para o funcionário de ID {id}.')
         
         except Exception as e:
             messages.error(request, f'Erro ao deletar: {str(e)}')
@@ -955,9 +966,9 @@ def registrar_pagamento(request):
 
                 #PEGA O ID DA AGENDA
                 id_agenda = request.POST.get('id_agenda')
-                id_funcionario = request.POST.get('id_funcionario')
+               
                 
-                if not id_agenda or not metodo_pagamento or not id_funcionario:
+                if not id_agenda or not metodo_pagamento :
                     messages.error(request, "Preencha todos os campos obrigatórios.")
                     return redirect('registrar_pagamento')
                 
