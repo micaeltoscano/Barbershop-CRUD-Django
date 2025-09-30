@@ -50,8 +50,6 @@ urlpatterns = [
 
     path('relatorios/', views.relatorios, name='relatorios'),
     path('compras-servicos/', views.compras_servicos, name='compras_servicos'),
+    path('filtrar-mes/', views.filtrar_mes, name='filtrar_mes')
 
-    
-
-   
 ]

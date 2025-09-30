@@ -8,10 +8,13 @@
         <h1 class="display-4"><i class="fas fa-receipt"></i> Minhas Compras</h1>
         <p class="lead">Histórico completo de suas compras realizadas</p>
         
+        <!-- Botão para voltar -->
         <a href="{% url 'home_cliente' %}" class="btn btn-outline-secondary mb-3">
             <i class="fas fa-arrow-left"></i> Voltar para Área do Cliente
         </a>
     </div>
+
+    <!-- Resumo do Cliente --> 
     <div class="row justify-content-center mb-4">
         <div class="col-md-8">
             <div class="card shadow">
@@ -21,8 +24,8 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Nome:</strong> {{ cliente|default:"—" }}</p>
-                            <p><strong>CPF:</strong> {{ cpf|default:"—" }}</p>
+                            <p><strong>Nome:</strong> {{ cliente }}</p>
+                            <p><strong>CPF:</strong> {{ cpf }}</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Total de Compras:</strong> {{ compras|length }}</p>
@@ -34,6 +37,7 @@
         </div>
     </div>
 
+    <!-- Lista de Compras -->
     <div class="row justify-content-center">
         <div class="col-md-10">
             {% if compras %}
@@ -47,27 +51,27 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0">
                                     <i class="fas fa-calendar-alt"></i> 
-                                    Compra #{{ compra.idcompra|default:"—" }} - {{ compra.data_compra|default:""|date:"d/m/Y H:i" }}
+                                    Compra #{{ compra.id }} - {{ compra.data_compra|date:"d/m/Y H:i" }}
                                 </h6>
-                                <span class="badge {% if compra.status == 'Concluída' %}bg-success{% else %}bg-warning{% endif %}">
-                                    {{ compra.status|default:"—" }}
+                                <span class="badge bg-{% if compra.status == 'Concluída' %}success{% else %}warning{% endif %}">
+                                    {{ compra.status }}
                                 </span>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <p><strong>Valor Total:</strong> R$ {{ compra.valor_total|floatformat:2 }}</p>
-                                        <p><strong>Forma de Pagamento:</strong> {{ compra.forma_pagamento|default:"—" }}</p>
+                                        <p><strong>Forma de Pagamento:</strong> {{forma_pagamento }}</p>
                                     </div>
                                     <div class="col-md-6">
                                         <p><strong>Itens:</strong></p>
                                         <ul class="list-unstyled">
-                                            {% for produto in compra.itens %}
+                                            {% for item in compra.itens.all %}
                                             <li>
-                                                <i class="fas fa-cube"></i> {{ produto }}
+                                                <i class="fas fa-cube"></i> 
+                                                {{ item.produto.nome }} - 
+                                                {{ item.quantidade }} x R$ {{ item.preco_unitario|floatformat:2 }}
                                             </li>
-                                            {% empty %}
-                                            <li class="text-muted">Nenhum item cadastrado.</li>
                                             {% endfor %}
                                         </ul>
                                     </div>
@@ -77,7 +81,7 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <small class="text-muted">
                                         <i class="fas fa-info-circle"></i> 
-                                        Código da transação: {{ compra.codigo_transacao|default:"—" }}
+                                        Código da transação: {{ compra.codigo_transacao }}
                                     </small>
                                     <a href="{% url 'home_cliente'%}" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-eye"></i> Ver Detalhes
@@ -89,6 +93,7 @@
                     </div>
                 </div>
             {% else %}
+                <!-- Card para quando não há compras -->
                 <div class="card shadow text-center">
                     <div class="card-body py-5">
                         <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>

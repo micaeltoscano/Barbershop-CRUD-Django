@@ -18,6 +18,7 @@ from django.db import transaction
 from funcoes.compra import Compra
 from funcoes.itens_compra import Itens_compra
 from decimal import Decimal
+from datetime import date
 
 
 #-----------------------CLIENTES-----------------------------------
@@ -1370,6 +1371,9 @@ def relatorios(request):
         (mes_atual, ano_atual),
         fetch=True
     )
+    # Para carregar os anos disponíveis no filtro
+    ano_atual = date.today().year
+    anos_disponiveis = list(range(ano_atual - 5, ano_atual + 1))
 
     context = {
         'total_vendas': total_vendas,
@@ -1389,9 +1393,11 @@ def relatorios(request):
         'servicos_mais_solicitados': servicos_mais_solicitados or [],
         'mes_atual': mes_atual,
         'ano_atual': ano_atual,
+        'anos_disponiveis': anos_disponiveis
     }
     
     return render(request, 'core/relatorio.html', context)
+
 
 # ---------------------- COMPRAS & SERVIÇOS ----------------------
 def compras_servicos(request):
@@ -1422,3 +1428,38 @@ def compras_servicos(request):
         'funcionarios': funcionarios,
         'servicos': servicos,
     })
+
+def filtrar_mes(request):
+    if request.method == 'POST':
+        c = Compra()
+        ano_atual = date.today().year
+        anos_disponiveis = list(range(ano_atual - 5, ano_atual + 1))
+
+        vendas = []
+        mes_selecionado = None
+        ano_selecionado = None
+
+        mes = request.POST.get('mes')
+        ano = request.POST.get('ano')
+
+        if mes and ano:
+            vendas = c.processar(
+                "SELECT * FROM filtrar_compras(%s, %s)",
+                (mes, ano),
+                fetch=True
+            )
+            mes_selecionado = int(mes)
+            ano_selecionado = int(ano)
+            if vendas:
+                messages.success(request, f'Foram encontradas {len(vendas)} vendas para o período selecionado.')
+            else:
+                messages.info(request, 'Nenhuma venda encontrada para o período selecionado.')
+
+    context = {
+        'vendas': vendas,
+        'anos_disponiveis': anos_disponiveis, 
+        'mes_selecionado': mes_selecionado,
+        'ano_selecionado': ano_selecionado,
+    }
+
+    return render(request, 'core/relatorios.html', context)

@@ -206,6 +206,49 @@
                         </tr>
                         {% endfor %}
                     </tbody>
+                        <form method="post" action="{% url 'filtrar_mes' %}" class="card p-4 shadow-sm">
+                        {% csrf_token %}
+                        <h5 class="mb-3 text-primary">Filtrar Desempenho</h5>
+                        
+                        <div class="row g-3">
+                            <!-- Seletor de mês -->
+                            <div class="col-md-6">
+                                <label for="mes" class="form-label fw-semibold">Mês:</label>
+                                <select name="mes" id="mes" class="form-select">
+                                    <option value="1">Janeiro</option>
+                                    <option value="2">Fevereiro</option>
+                                    <option value="3">Março</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Maio</option>
+                                    <option value="6">Junho</option>
+                                    <option value="7">Julho</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Seletor de ano -->
+                            <div class="col-md-6">
+                                <label for="ano" class="form-label fw-semibold">Ano:</label>
+                                <select name="ano" id="ano" class="form-select" required>
+                                    <option value="" selected disabled>Selecione o ano</option>
+                                    {% for ano in anos_disponiveis %}
+                                    <option value="{{ ano }}">{{ ano }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Botão de filtro -->
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-funnel me-2"></i>Aplicar Filtro
+                            </button>
+                        </div>
+                    </form>
                 </table>
             </div>
         </div>
