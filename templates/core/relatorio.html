@@ -6,6 +6,50 @@
 <div class="container mt-4">
     <h1 class="mb-4"><i class="fas fa-chart-line"></i> Relatórios - {{ mes_atual }}/{{ ano_atual }}</h1>
     
+    <!-- Filtro por Período -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-filter"></i> Filtrar por Período
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'relatorios' %}" class="row g-3">
+                {% csrf_token %}
+                <div class="col-md-4">
+                    <label for="mes" class="form-label">Mês</label>
+                    <select name="mes" id="mes" class="form-select">
+                        <option value="">Todos os meses</option>
+                        <option value="1" {% if mes_filtro == 1 %}selected{% endif %}>Janeiro</option>
+                        <option value="2" {% if mes_filtro == 2 %}selected{% endif %}>Fevereiro</option>
+                        <option value="3" {% if mes_filtro == 3 %}selected{% endif %}>Março</option>
+                        <option value="4" {% if mes_filtro == 4 %}selected{% endif %}>Abril</option>
+                        <option value="5" {% if mes_filtro == 5 %}selected{% endif %}>Maio</option>
+                        <option value="6" {% if mes_filtro == 6 %}selected{% endif %}>Junho</option>
+                        <option value="7" {% if mes_filtro == 7 %}selected{% endif %}>Julho</option>
+                        <option value="8" {% if mes_filtro == 8 %}selected{% endif %}>Agosto</option>
+                        <option value="9" {% if mes_filtro == 9 %}selected{% endif %}>Setembro</option>
+                        <option value="10" {% if mes_filtro == 10 %}selected{% endif %}>Outubro</option>
+                        <option value="11" {% if mes_filtro == 11 %}selected{% endif %}>Novembro</option>
+                        <option value="12" {% if mes_filtro == 12 %}selected{% endif %}>Dezembro</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="ano" class="form-label">Ano</label>
+                    <select name="ano" id="ano" class="form-select" required>
+                        <option value="" disabled>Selecione o ano</option>
+                        {% for ano in anos_disponiveis %}
+                        <option value="{{ ano }}" {% if ano_filtro == ano %}selected{% endif %}>{{ ano }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Aplicar Filtro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Cards de Resumo -->
     <div class="row mb-4">
         <div class="col-md-3">
@@ -206,49 +250,6 @@
                         </tr>
                         {% endfor %}
                     </tbody>
-                        <form method="post" action="{% url 'filtrar_mes' %}" class="card p-4 shadow-sm">
-                        {% csrf_token %}
-                        <h5 class="mb-3 text-primary">Filtrar Desempenho</h5>
-                        
-                        <div class="row g-3">
-                            <!-- Seletor de mês -->
-                            <div class="col-md-6">
-                                <label for="mes" class="form-label fw-semibold">Mês:</label>
-                                <select name="mes" id="mes" class="form-select">
-                                    <option value="1">Janeiro</option>
-                                    <option value="2">Fevereiro</option>
-                                    <option value="3">Março</option>
-                                    <option value="4">Abril</option>
-                                    <option value="5">Maio</option>
-                                    <option value="6">Junho</option>
-                                    <option value="7">Julho</option>
-                                    <option value="8">Agosto</option>
-                                    <option value="9">Setembro</option>
-                                    <option value="10">Outubro</option>
-                                    <option value="11">Novembro</option>
-                                    <option value="12">Dezembro</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Seletor de ano -->
-                            <div class="col-md-6">
-                                <label for="ano" class="form-label fw-semibold">Ano:</label>
-                                <select name="ano" id="ano" class="form-select" required>
-                                    <option value="" selected disabled>Selecione o ano</option>
-                                    {% for ano in anos_disponiveis %}
-                                    <option value="{{ ano }}">{{ ano }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- Botão de filtro -->
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary px-4">
-                                <i class="bi bi-funnel me-2"></i>Aplicar Filtro
-                            </button>
-                        </div>
-                    </form>
                 </table>
             </div>
         </div>

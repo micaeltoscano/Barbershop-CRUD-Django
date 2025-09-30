@@ -1136,9 +1136,9 @@ def registrar_pagamento(request):
 
                 #PEGA O ID DA AGENDA
                 id_agenda = request.POST.get('id_agenda')
-                id_funcionario = request.POST.get('id_funcionario')
+
                 
-                if not id_agenda or not metodo_pagamento or not id_funcionario:
+                if not id_agenda or not metodo_pagamento:
                     messages.error(request, "Preencha todos os campos obrigatórios.")
                     return redirect('registrar_pagamento')
                 
@@ -1241,52 +1241,78 @@ def relatorios(request):
     funcionario = Funcionario()
     compra = Compra()
     
-    # Dados básicos
-    mes_atual = datetime.now().month
-    ano_atual = datetime.now().year
+    # Obter filtros do POST ou usar valores padrão
+    mes_atual = request.POST.get('mes')
+    ano_atual = request.POST.get('ano')
+    
+    # Se não foram enviados filtros, usar mês e ano atual
+    if not mes_atual or not ano_atual:
+
+        mes_atual = datetime.now().month
+        ano_atual = datetime.now().year
+
+    else:
+        mes_atual = int(mes_atual)
+        ano_atual = int(ano_atual)
+    
+    
     
     # Dados financeiros
     pagamentos = pagamento.ler_todos_pagamentos()
-    valor_total_vendas = sum(n['valor'] for n in pagamentos)
-    total_vendas = len(pagamentos)
+    
+    # Aplicar filtros aos pagamentos
+    if mes_atual and ano_atual:
+        pagamentos_filtrados = [p for p in pagamentos 
+                              if p['data_pagamento'].month == mes_atual 
+                              and p['data_pagamento'].year == ano_atual]
+    else:
+        pagamentos_filtrados = pagamentos
+    
+    valor_total_vendas = sum(n['valor'] for n in pagamentos_filtrados)
+    total_vendas = len(pagamentos_filtrados)
     ticket_medio = valor_total_vendas / total_vendas if total_vendas > 0 else 0
     
-    # Vendas do mês atual
+    # Vendas do mês atual (para comparação)
     vendas_mes = len([p for p in pagamentos 
                      if p['data_pagamento'].month == mes_atual 
                      and p['data_pagamento'].year == ano_atual])
+    
     valor_vendas_mes = sum(p['valor'] for p in pagamentos 
                           if p['data_pagamento'].month == mes_atual 
                           and p['data_pagamento'].year == ano_atual)
     
-    # Dados de estoque
+    # Dados de estoque (não dependem do filtro de tempo)
     estoques = estoque.ler_todo_estoque()
     total_produtos = len(estoques)
     produtos_baixo_estoque = len([e for e in estoques 
                                  if e['quantidade_atual'] <= e['quantidade_minima']])
     
-    # Dados de clientes
+    # Dados de clientes (não dependem do filtro de tempo)
     clientes = cliente.ler_todos_clientes()
     total_clientes = len(clientes)
     
     # Dados de serviços
     servicos = servico.ler_todos_servicos_ativos()
+
     categorias_count = {}
     for s in servicos:
         # Buscar nome da categoria
         categoria_nome = "Sem categoria"
+
         if 'id_categoria' in s:
             categoria = Categoria().listar_um(s['id_categoria'])
+
             if categoria:
                 categoria_nome = categoria[0].get('nome_categoria', 'Sem categoria')
+
         categorias_count[categoria_nome] = categorias_count.get(categoria_nome, 0) + 1
     
-    # VENDAS MENSIAIS POR FUNCIONÁRIO (SUPER IMPORTANTE!)
+    # VENDAS POR FUNCIONÁRIO COM FILTRO
     vendas_por_funcionario = {}
     funcionarios = funcionario.ler_todos_funcionarios_ativos()
     
     for func in funcionarios:
-        # Vendas de serviços (via agenda)
+        # Vendas de serviços (via agenda) - com filtro
         agendas_funcionario = agenda.processar(
             "SELECT a.*, p.valor FROM agenda a "
             "JOIN pagamento p ON a.idagenda = p.id_agenda "
@@ -1297,19 +1323,15 @@ def relatorios(request):
             fetch=True
         )
         
-        # Vendas de produtos (via compra)
+        # Vendas de produtos (via compra) - com filtro
         compras_funcionario = compra.processar(
-            "SELECT c.* FROM compra c "
-            "JOIN pagamento p ON c.idcompra = p.id_compra "
-            "WHERE c.id_funcionario = %s "
-            "AND EXTRACT(MONTH FROM p.data_pagamento) = %s "
-            "AND EXTRACT(YEAR FROM p.data_pagamento) = %s",
-            (func['idfuncionario'], mes_atual, ano_atual),
-            fetch=True
-        )
+                                                "SELECT * FROM filtrar_compras(%s,%s) WHERE id_funcionario = %s",
+                                                (ano_atual, mes_atual, func['idfuncionario']),
+                                                fetch=True
+                                            )
         
         total_vendas_func = len(agendas_funcionario) + len(compras_funcionario)
-        valor_vendas_func = sum(a['valor'] for a in agendas_funcionario) + sum(c['valor_total'] for c in compras_funcionario)
+        valor_vendas_func = sum(a.get('valor', 0) for a in agendas_funcionario) + sum(c.get('valor_total', 0) for c in compras_funcionario)
         
         vendas_por_funcionario[func['nome']] = {
             'total_vendas': total_vendas_func,
@@ -1318,13 +1340,13 @@ def relatorios(request):
             'produtos_vendidos': len(compras_funcionario)
         }
     
-    # Formas de pagamento mais utilizadas
+    # Formas de pagamento mais utilizadas (com filtro)
     formas_pagamento = {}
-    for p in pagamentos:
+    for p in pagamentos_filtrados:
         forma = p.get('forma_pagamento', 'Desconhecida')
         formas_pagamento[forma] = formas_pagamento.get(forma, 0) + 1
     
-    # Agendamentos do mês
+    # Agendamentos do mês (com filtro)
     agendas_mes = agenda.processar(
         "SELECT COUNT(*) as total FROM agenda "
         "WHERE EXTRACT(MONTH FROM dia) = %s "
@@ -1334,7 +1356,7 @@ def relatorios(request):
     )
     agendamentos_mes = agendas_mes[0]['total'] if agendas_mes else 0
     
-    # Taxa de conclusão de agendamentos
+    # Taxa de conclusão de agendamentos (com filtro)
     agendamentos_concluidos = agenda.processar(
         "SELECT COUNT(*) as total FROM agenda "
         "WHERE status = 'CONCLUIDO' "
@@ -1345,7 +1367,7 @@ def relatorios(request):
     )
     taxa_conclusao = (agendamentos_concluidos[0]['total'] / agendamentos_mes * 100) if agendamentos_mes > 0 else 0
     
-    # Produtos mais vendidos
+    # Produtos mais vendidos (com filtro)
     produtos_mais_vendidos = compra.processar(
         "SELECT p.nome, SUM(ic.quantidade) as total_vendido "
         "FROM itens_compra ic "
@@ -1359,7 +1381,7 @@ def relatorios(request):
         fetch=True
     )
     
-    # Serviços mais solicitados
+    # Serviços mais solicitados (com filtro)
     servicos_mais_solicitados = agenda.processar(
         "SELECT s.nome, COUNT(*) as total_realizado "
         "FROM agenda a "
@@ -1371,6 +1393,7 @@ def relatorios(request):
         (mes_atual, ano_atual),
         fetch=True
     )
+    
     # Para carregar os anos disponíveis no filtro
     ano_atual = date.today().year
     anos_disponiveis = list(range(ano_atual - 5, ano_atual + 1))
@@ -1393,7 +1416,9 @@ def relatorios(request):
         'servicos_mais_solicitados': servicos_mais_solicitados or [],
         'mes_atual': mes_atual,
         'ano_atual': ano_atual,
-        'anos_disponiveis': anos_disponiveis
+        'anos_disponiveis': anos_disponiveis,
+        'mes_filtro': mes_atual,
+        'ano_filtro': ano_atual
     }
     
     return render(request, 'core/relatorio.html', context)
@@ -1429,37 +1454,3 @@ def compras_servicos(request):
         'servicos': servicos,
     })
 
-def filtrar_mes(request):
-    if request.method == 'POST':
-        c = Compra()
-        ano_atual = date.today().year
-        anos_disponiveis = list(range(ano_atual - 5, ano_atual + 1))
-
-        vendas = []
-        mes_selecionado = None
-        ano_selecionado = None
-
-        mes = request.POST.get('mes')
-        ano = request.POST.get('ano')
-
-        if mes and ano:
-            vendas = c.processar(
-                "SELECT * FROM filtrar_compras(%s, %s)",
-                (mes, ano),
-                fetch=True
-            )
-            mes_selecionado = int(mes)
-            ano_selecionado = int(ano)
-            if vendas:
-                messages.success(request, f'Foram encontradas {len(vendas)} vendas para o período selecionado.')
-            else:
-                messages.info(request, 'Nenhuma venda encontrada para o período selecionado.')
-
-    context = {
-        'vendas': vendas,
-        'anos_disponiveis': anos_disponiveis, 
-        'mes_selecionado': mes_selecionado,
-        'ano_selecionado': ano_selecionado,
-    }
-
-    return render(request, 'core/relatorios.html', context)
