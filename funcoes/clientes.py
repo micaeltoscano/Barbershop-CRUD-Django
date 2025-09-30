@@ -36,12 +36,12 @@ class Clientes(Crud):
     
     def buscar_por_cpf(self, cpf: str):
         try:
-            print('BUSCANDO CLIENTE PELO CPF:', cpf) #DEBUG
-            consulta = self.processar("SELECT idcliente FROM CLIENTE WHERE CPF = %s", (cpf,), fetch=True) #Retorna uma lista de dicionários
-            resultado = consulta[0]['idcliente'] if consulta else None
-
-            print('ID DO CLIENTE PEGO PELO CPF:', resultado) #DEBUG
-            return resultado if resultado else None
+            print('BUSCANDO CLIENTE PELO CPF:', cpf)  # DEBUG
+            # Agora buscamos todas as colunas para devolver o registro completo
+            consulta = self.processar("SELECT * FROM cliente WHERE cpf = %s", (cpf,), fetch=True)
+            cliente = consulta[0] if consulta else None
+            print('CLIENTE ENCONTRADO:', cliente)  # DEBUG
+            return cliente
         except Exception as e:
             raise ValueError(f"Erro ao buscar cliente por CPF: {e}")
         
