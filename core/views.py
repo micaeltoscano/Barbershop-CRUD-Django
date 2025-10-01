@@ -27,16 +27,20 @@ def buscar_cliente_por_cpf(request):
     cliente = None
     compras = []
     total_gasto = 0
+    cpf = None
 
     if request.method == "POST":
         cpf = request.POST.get('cpf_cliente')
         c = Clientes()
-        cliente = c.buscar_por_cpf(cpf)
-        
-        if cliente:
-            #Buscando as compras do cliente com o CPF fornecido
-            compras = Compra.objects.filter(cliente_id=cliente['idcliente'])
-            total_gasto = sum([compra.valor_total for compra in compras])
+        cliente = c.buscar_por_cpf(cpf)  # agora retorna dict completo
+
+        if cliente and cliente.get('idcliente'):
+            # Buscando as compras do cliente via SQL (mantendo padrão do restante do código)
+            compras = Compra().processar(
+                "SELECT * FROM COMPRA WHERE id_cliente = %s",
+                (cliente['idcliente'],), fetch=True
+            )
+            total_gasto = sum([compra['valor_total'] for compra in compras]) if compras else 0
         else:
             messages.error(request, "Cliente não encontrado.")
             return render(request, 'core/home_cliente.html')
@@ -47,7 +51,7 @@ def buscar_cliente_por_cpf(request):
         'total_gasto': total_gasto,
         'cpf': cpf
     }
-    return render(request, 'compras_cliente.html', context)
+    return render(request, 'core/compras_cliente.html', context)
 
 def cliente_funcionario(request):
     return render(request, 'core/cliente_funcionario.html')
@@ -63,52 +67,48 @@ def compras_cliente(request):
 
         cpf = request.POST.get('cpf_cliente')
         c = Clientes()
-        cliente_id = c.buscar_por_cpf(cpf)
+        cliente = c.buscar_por_cpf(cpf)  # dict completo
 
-        if cliente_id:
+        if cliente and cliente.get('idcliente'):
+            cliente_id = cliente['idcliente']
+            nome_cliente = cliente['nome']
 
-            # Buscando as compras do cliente
             compras = Compra().processar(
                 "SELECT * FROM COMPRA WHERE id_cliente = %s",
                 (cliente_id,), fetch=True
-            )
+            ) or []
 
-            cliente = c.ler_um_cliente(cliente_id)[0]['nome']
-
-            total_gasto = sum([compra['valor_total'] for compra in compras])
+            total_gasto = sum([compra['valor_total'] for compra in compras]) if compras else 0
 
             for compra in compras:
+                compra_id = compra.get('idcompra')
+                if not compra_id:
+                    continue
 
-                compra_id = compra['idcompra']
-
-                # Pega apenas os nomes dos produtos daquela compra
                 itens = Itens_compra().processar(
-                                                    """SELECT p.nome as produto 
-                                                    FROM itens_compra ic 
-                                                    JOIN produto p ON ic.id_produto = p.idproduto 
-                                                    WHERE ic.id_compra = %s""",
-                                                    (compra_id,), fetch=True
-                )
+                    """SELECT p.nome as produto 
+                        FROM itens_compra ic 
+                        JOIN produto p ON ic.id_produto = p.idproduto 
+                        WHERE ic.id_compra = %s""",
+                    (compra_id,), fetch=True
+                ) or []
 
-                # transforma lista de dicts em lista só com os nomes
                 nomes_produtos = [item['produto'] for item in itens]
 
-                # Pega a forma de pagamento
                 forma_pagamento = Pagamento().processar(
-                                                        "SELECT forma_pagamento FROM pagamento WHERE id_compra = %s",
-                                                        (compra_id,), fetch=True)
+                    "SELECT forma_pagamento FROM pagamento WHERE id_compra = %s",
+                    (compra_id,), fetch=True
+                ) or []
 
-                # adiciona os dados simplificados à compra
                 compra['itens'] = nomes_produtos
-                compra['forma_pagamento'] = (
-                    forma_pagamento[0]['forma_pagamento'] if forma_pagamento else None
-                )
+                compra['forma_pagamento'] = forma_pagamento[0]['forma_pagamento'] if forma_pagamento else None
         else:
             messages.error(request, "Cliente não encontrado.")
             return render(request, 'core/home_cliente.html')
 
-    context = {
 
+    context = {
+        'nome' : nome_cliente,
         'cliente': cliente,
         'compras': compras,
         'total_gasto': total_gasto,

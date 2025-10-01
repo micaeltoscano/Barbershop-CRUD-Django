@@ -24,7 +24,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Nome:</strong> {{ cliente }}</p>
+                            <p><strong>Nome:</strong> {{ nome }}</p>
                             <p><strong>CPF:</strong> {{ cpf }}</p>
                         </div>
                         <div class="col-md-6">
@@ -51,27 +51,30 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0">
                                     <i class="fas fa-calendar-alt"></i> 
-                                    Compra #{{ compra.id }} - {{ compra.data_compra|date:"d/m/Y H:i" }}
+                                    Compra #{{ compra.idcompra }} - {{ compra.data_compra|date:"d/m/Y H:i" }}
                                 </h6>
-                                <span class="badge bg-{% if compra.status == 'Concluída' %}success{% else %}warning{% endif %}">
+                                {% if compra.status %}
+                                <span class="badge bg-{% if compra.status|upper == 'CONCLUIDA' or compra.status|upper == 'CONCLUÍDA' %}success{% else %}warning{% endif %}">
                                     {{ compra.status }}
                                 </span>
+                                {% endif %}
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <p><strong>Valor Total:</strong> R$ {{ compra.valor_total|floatformat:2 }}</p>
-                                        <p><strong>Forma de Pagamento:</strong> {{forma_pagamento }}</p>
+                                        <p><strong>Forma de Pagamento:</strong> {{ compra.forma_pagamento|default:"-" }}</p>
                                     </div>
                                     <div class="col-md-6">
                                         <p><strong>Itens:</strong></p>
                                         <ul class="list-unstyled">
-                                            {% for item in compra.itens.all %}
+                                            {% for nome_item in compra.itens %}
                                             <li>
                                                 <i class="fas fa-cube"></i> 
-                                                {{ item.produto.nome }} - 
-                                                {{ item.quantidade }} x R$ {{ item.preco_unitario|floatformat:2 }}
+                                                {{ nome_item }}
                                             </li>
+                                            {% empty %}
+                                            <li class="text-muted">Nenhum item</li>
                                             {% endfor %}
                                         </ul>
                                     </div>
@@ -81,7 +84,7 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <small class="text-muted">
                                         <i class="fas fa-info-circle"></i> 
-                                        Código da transação: {{ compra.codigo_transacao }}
+                                        {% if compra.codigo_transacao %}Código da transação: {{ compra.codigo_transacao }}{% endif %}
                                     </small>
                                     <a href="{% url 'home_cliente'%}" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-eye"></i> Ver Detalhes

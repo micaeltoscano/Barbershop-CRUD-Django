@@ -3,6 +3,7 @@ from pagamentos import Pagamento
 from estoque import Estoque
 from disponibilidade import Disponibilidade
 from servico import Servico
+from datetime import datetime, timedelta
 
 class Agenda(Crud):
     
@@ -35,7 +36,9 @@ class Agenda(Crud):
 
         disponibilidade = Disponibilidade()
         servico = Servico()
-
+        if horario < datetime.now().strftime("%H:%M:%S") and dia == datetime.now().strftime("%Y-%m-%d"):
+            raise ValueError("Não é possível agendar um serviço para um horário já passado.")
+        
         if not disponibilidade.disponibilidade_funcionario(id_funcionario, horario, dia):
             raise ValueError("Funcionário não está disponível nesse horário.")
 
