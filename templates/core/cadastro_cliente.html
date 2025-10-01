@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastrar Cliente - Barbearia{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i> Cadastrar Novo Cliente</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'cadastrar_cliente' %}">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nome" name="nome" required 
+                                   placeholder="Digite o nome completo">
+                            <div class="form-text">Obrigatório</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="exemplo@email.com">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cpf" name="cpf" required 
+                                   placeholder="000.000.000-00" oninput="formatarCPF(this)"
+                                   maxlength="14">
+                            
+                        </div>
+                        <div class="col-md-6">
+                            <label for="numero_celular" class="form-label">Celular <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="numero_celular" name="numero_celular" required 
+                                   placeholder="(11) 99999-9999" oninput="formatarTelefone(this)"
+                                   maxlength="15">
+                            
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="cidade" class="form-label">Cidade <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cidade" name="cidade" required 
+                                   placeholder="Digite a cidade">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Preferências <span class="text-danger">*</span></label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_flamengo" name="is_flamengo" value="true">
+                                <label class="form-check-label" for="is_flamengo">
+                                    Torce para o Flamengo
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_onepiece" name="is_onepiece" value="true">
+                                <label class="form-check-label" for="is_onepiece">
+                                    É fã de One Piece
+                                </label>
+                            </div>
+                            <div class="form-text">Clientes de Souza, fãs de One Piece ou do Flamengo ganham 10% de desconto!</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <textarea class="form-control" id="endereco" name="endereco" rows="3" 
+                                  placeholder="Digite o endereço completo"></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'cliente_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Voltar para Lista
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-1"></i> Cadastrar Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Informações</h5>
+                <p class="card-text">
+                    Campos marcados com <span class="text-danger">*</span> são obrigatórios.
+                    Após o cadastro, o cliente será redirecionado para a lista de clientes.
+                </p>
+                <p class="card-text text-success">
+                    <strong>Benefício especial:</strong> Clientes de Souza, fãs de One Piece ou torcedores do Flamengo 
+                    recebem 10% de desconto em todos os produtos!
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+.card {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn {
+    border-radius: 0.375rem;
+    padding: 0.5rem 1.5rem;
+}
+
+.shadow {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.form-check {
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastrar Funcionario - Barbearia{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i> Cadastrar Novo Funcionario</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'cadastrar_funcionario' %}">
+                    {% csrf_token %}
+                    
+                    <h5 class="mb-3"><i class="fas fa-user me-2"></i>Dados Pessoais</h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nome" name="nome" required 
+                                   placeholder="Digite o nome completo">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="exemplo@email.com">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="cpf" class="form-label">CPF <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="cpf" name="cpf" required 
+                                   placeholder="000.000.000-00" oninput="formatarCPF(this)"
+                                   maxlength="14">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="numero_celular" class="form-label">Celular <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="numero_celular" name="numero_celular" required 
+                                   placeholder="(11) 99999-9999" oninput="formatarTelefone(this)"
+                                   maxlength="15">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="salario" class="form-label">Salário <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="salario" name="salario" required 
+                                   step="0.01" min="0" placeholder="R$ 0,00">
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="endereco" class="form-label">Endereço</label>
+                            <textarea class="form-control" id="endereco" name="endereco" rows="2" 
+                                      placeholder="Digite o endereço completo"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="especialidade" class="form-label">Especialidade <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="especialidade" name="especialidade" required
+                                   placeholder="Ex: Corte de cabelo, Barba, etc.">
+                        </div>
+                    </div>
+
+                    <hr>
+                    
+                    <h5 class="mb-3"><i class="fas fa-clock me-2"></i>Disponibilidade</h5>
+                    
+                    <div id="disponibilidade-container">
+                        
+                        <div class="disponibilidade-item card mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Dia da Semana</label>
+                                        <select class="form-select" name="dia_semana[]" required>
+                                            <option value="">Selecione...</option>
+                                            <option value="Segunda">Segunda-feira</option>
+                                            <option value="Terca">Terça-feira</option>
+                                            <option value="Quarta">Quarta-feira</option>
+                                            <option value="Quinta">Quinta-feira</option>
+                                            <option value="Sexta">Sexta-feira</option>
+                                            <option value="Sabado">Sábado</option>
+                                            <option value="Domingo">Domingo</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Hora Início</label>
+                                        <select class="form-select" name="hora_inicio[]" required>
+                                            <option value="">Selecione...</option>
+                                            {% for hora in horarios %}
+                                            <option value="{{ hora }}">{{ hora }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Hora Fim</label>
+                                        <select class="form-select" name="hora_fim[]" required>
+                                            <option value="">Selecione...</option>
+                                            {% for hora in horarios %}
+                                            <option value="{{ hora }}">{{ hora }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btn-remover" style="display: none;">
+                                            <i class="fas fa-trash"></i> Remover
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <button type="button" id="btn-add-disponibilidade" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i> Adicionar Horário
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'listar_funcionarios' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Voltar para Lista
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-1"></i> Cadastrar Funcionário
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('disponibilidade-container');
+    const addButton = document.getElementById('btn-add-disponibilidade');
+    
+    addButton.addEventListener('click', function() {
+        const firstItem = container.querySelector('.disponibilidade-item');
+        const newItem = firstItem.cloneNode(true);
+        
+       
+        newItem.querySelectorAll('select').forEach(select => {
+            select.value = '';
+        });
+        
+        
+        newItem.querySelector('.btn-remover').style.display = 'block';
+        
+       
+        newItem.querySelector('.btn-remover').addEventListener('click', function() {
+            if (container.querySelectorAll('.disponibilidade-item').length > 1) {
+                newItem.remove();
+            }
+        });
+        
+        container.appendChild(newItem);
+    });
+    
+   
+    document.querySelectorAll('.btn-remover').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (container.querySelectorAll('.disponibilidade-item').length > 1) {
+                this.closest('.disponibilidade-item').remove();
+            }
+        });
+    });
+});
+
+
+</script>
+
+<style>
+.disponibilidade-item {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+}
+
+.disponibilidade-item .card-body {
+    padding: 1rem;
+}
+
+.btn-remover {
+    transition: all 0.3s ease;
+}
+
+.btn-remover:hover {
+    transform: scale(1.05);
+}
+</style>
+{% endblock %}

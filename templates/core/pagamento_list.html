@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Pagamentos - Barbearia{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-money-bill-wave"></i> Lista de Pagamentos</h2>
+    <div>
+        <a href="{% url 'registrar_pagamento' %}" class="btn btn-secondary">
+            <i class="fas fa-plus"></i> Novo Pagamento
+        </a>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary ms-2">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="fas fa-search"></i> Buscar Pagamento</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" action="{% url 'lista_pagamento' %}" class="row g-3">
+            <div class="col-md-6">
+                <label for="id_busca" class="form-label">ID do Pagamento</label>
+                <input type="number" class="form-control" id="id_busca" name="id_busca" 
+                       value="{{ request.GET.id_busca }}" placeholder="Digite o ID do Pagamento">
+            </div>
+            
+            
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <a href="{% url 'lista_pagamento' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Limpar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if pagamentos %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Origem</th>
+                            <th>ID Compra</th>
+                            <th>Valor (R$)</th>
+                            <th>Forma de Pagamento</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pagamento in pagamentos %}
+                        <tr>
+                            <td>{{ pagamento.idpagamento }}</td>
+                            <td>
+                                {% if pagamento.id_agenda %}
+                                    Serviço
+                                {% else %}
+                                    Produto
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if pagamento.id_agenda %}
+                                    {{ pagamento.id_agenda }}
+                                {% else %}
+                                    {{ pagamento.id_compra }}
+                                {% endif %}
+                            </td>
+                            <td>R$ {{ pagamento.valor|floatformat:2 }}</td>
+                            <td>
+                                {% if pagamento.forma_pagamento == 'DINHEIRO' %}
+                                    <span class="badge bg-info">Dinheiro</span>
+                                {% elif pagamento.forma_pagamento == 'CARTAO_CREDITO' %}
+                                    <span class="badge bg-primary">Cartão Crédito</span>
+                                {% elif pagamento.forma_pagamento == 'CARTAO_DEBITO' %}
+                                    <span class="badge bg-success">Cartão Débito</span>
+                                {% elif pagamento.forma_pagamento == 'PIX' %}
+                                    <span class="badge bg-secondary">PIX</span>
+                               {% elif pagamento.forma_pagamento == 'BERRIES' %}
+                                    <span class="badge bg-rosa">Berries</span>
+                                {% else %}
+                                    <span class="badge bg-dark">Transferência</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ pagamento.data_pagamento|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if pagamento.status == 'APROVADO' %}
+                                    <span class="badge bg-success">Aprovado</span>
+                                {% elif pagamento.status == 'PENDENTE' %}
+                                    <span class="badge bg-warning">Pendente</span>
+                                {% elif pagamento.status == 'RECUSADO' %}
+                                    <span class="badge bg-danger">Recusado</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Estornado</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3">
+                <p class="text-muted">Total de pagamentos: {{ pagamentos|length }}</p>
+                <p class="text-muted">Valor total: R$ {{ valor_total|floatformat:2 }}</p>
+            </div>
+            
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Nenhum pagamento registrado.</p>
+                <a href="{% url 'registrar_pagamento' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Registrar Primeiro Pagamento
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .badge {
+        font-size: 0.85em;
+        padding: 0.35em 0.65em;
+    }
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+    .bg-rosa {
+    background-color: pink !important;
+    color: black; /* ou branco se preferir mais contraste */
+}
+</style>
+
+{% endblock %}

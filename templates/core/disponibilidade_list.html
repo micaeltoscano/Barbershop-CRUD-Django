@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilidade de Funcionários</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            margin-bottom: 20px; 
+        }
+        .table th { 
+            background-color: #f1f5f9; 
+        }
+        .badge-available { 
+            background-color: #d1e7dd; 
+            color: #0f5132; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="text-center"><i class="bi bi-calendar-check"></i> 
+                    Disponibilidade de Funcionários
+                </h1>
+                <p class="text-center text-muted">
+                    Visualizando a disponibilidade de todos os funcionários
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-list-check"></i> Horários de Disponibilidade</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if disponibilidade %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Funcionário</th>
+                                        <th>Dia da Semana</th>
+                                        <th>Horário</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for disp in disponibilidade %}
+                                    <tr>
+                                        <td class="fw-bold">{{ disp.iddisponibilidade }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                                                    <i class="bi bi-person"></i>
+                                                </div>
+                                                <div>
+                                                    Funcionário #{{ disp.id_funcionario }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ disp.dia_semana }}</td>
+                                        <td>{{ disp.hora_inicio }} - {{ disp.hora_fim }}</td>
+                                        <td>
+                                           
+                                            <span class="badge badge-available rounded-pill">
+                                                <i class="bi bi-check-circle"></i> Disponível
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x" style="font-size: 3rem; color: #6c757d;"></i>
+                            <h5 class="mt-3">Nenhuma disponibilidade encontrada</h5>
+                            <p class="text-muted">Não há horários de disponibilidade cadastrados.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Sistema Barbearia{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center mb-5">
+        <h1 class="display-4"><i class="fas fa-cut"></i> Caneco's Barber</h1>
+        <p class="lead">Sistema completo para gestão de barbearia</p>
+    </div>
+
+    <div class="row">
+       
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Clientes</h5>
+                    <p class="card-text">Gerencie seus clientes cadastrados</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'cliente_list' %}" class="btn btn-primary btn-sm w-100 mb-2">
+                        <i class="fas fa-list"></i> Listar Clientes
+                    </a>
+                    <a href="{% url 'cadastrar_cliente' %}" class="btn btn-primary btn-sm w-100 mb-2">
+                        <i class="fas fa-plus"></i> Novo Cliente
+                    </a>
+                    <a href="{% url 'atualizar_cliente' %}" class="btn btn-primary btn-sm w-100 mb-2">
+                        <i class="fas fa-edit"></i> Atualizar Cliente
+                    </a>
+                    <a href="{% url 'deletar_cliente' %}" class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-trash"></i> Deletar Cliente
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-tie fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">Funcionários</h5>
+                    <p class="card-text">Gerencie sua equipe de barbeiros</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'listar_funcionarios' %}" class="btn btn-warning btn-sm w-100 mb-2">
+                        <i class="fas fa-list"></i> Listar Funcionários
+                    </a>
+                    <a href="{% url 'cadastrar_funcionario' %}" class="btn btn-warning btn-sm w-100 mb-2">
+                        <i class="fas fa-plus"></i> Novo Funcionário
+                    </a>
+                    <a href="{% url 'atualizar_funcionario' %}" class="btn btn-warning btn-sm w-100 mb-2">
+                        <i class="fas fa-edit"></i> Atualizar Funcionário
+                    </a>
+                    <a href="{% url 'deletar_funcionario' %}" class="btn btn-warning btn-sm w-100">
+                        <i class="fas fa-user-times"></i> Desvincular Funcionário
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Agenda</h5>
+                    <p class="card-text">Controle de agendamentos</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'lista_agenda' %}" class="btn btn-info btn-sm w-100 mb-2">
+                        <i class="fas fa-list"></i> Visualizar Agenda
+                    </a>
+                    <a href="{% url 'cadastrar_agenda' %}" class="btn btn-info btn-sm w-100 mb-2">
+                        <i class="fas fa-plus"></i> Novo Agendamento
+                    </a>
+                    <a href="{% url 'atualizar_agenda' %}" class="btn btn-info btn-sm w-100 mb-2">
+                        <i class="fas fa-edit"></i> Atualizar Agendamento
+                    </a>
+                    <a href="{% url 'deletar_agenda' %}" class="btn btn-info btn-sm w-100">
+                        <i class="fas fa-trash"></i> Deletar Agendamento
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-boxes fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Estoque</h5>
+                    <p class="card-text">Controle de produtos e materiais</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'lista_estoque' %}" class="btn btn-success btn-sm w-100 mb-2">
+                        <i class="fas fa-list"></i> Ver Estoque
+                    </a>
+                    <a href="{% url 'cadastrar_estoque' %}" class="btn btn-success btn-sm w-100 mb-2">
+                        <i class="fas fa-plus"></i> Adicionar Produto
+                    </a>
+                    <a href="{% url 'atualizar_estoque' %}" class="btn btn-success btn-sm w-100 mb-2">
+                        <i class="fas fa-edit"></i> Atualizar Estoque
+                    </a>
+                    <a href="{% url 'deletar_estoque' %}" class="btn btn-success btn-sm w-100">
+                        <i class="fas fa-trash"></i> Deletar produto
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-money-bill-wave fa-3x text-danger mb-3"></i>
+                    <h5 class="card-title">Pagamentos</h5>
+                    <p class="card-text">Controle financeiro e pagamentos</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'lista_pagamento' %}" class="btn btn-danger btn-sm w-100 mb-2">
+                        <i class="fas fa-list"></i> Ver Pagamentos
+                    </a>
+                    <a href="{% url 'registrar_pagamento' %}" class="btn btn-danger btn-sm w-100 mb-2">
+                        <i class="fas fa-plus"></i> Registrar Pagamento
+                    </a>
+                     <a href="#" class="btn btn-danger btn-sm w-100 mb-2">
+                        <i class="fas fa-edit"></i> Atualizar Pagamento
+                    </a>
+                    <a href="#" class="btn btn-danger btn-sm w-100">
+                        <i class="fas fa-trash"></i> Deletar Pagamento
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-concierge-bell fa-3x text-secondary mb-3"></i>
+                    <h5 class="card-title">Serviços</h5>
+                    <p class="card-text">Catálogo de serviços oferecidos</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'lista_servico' %}" class="btn btn-secondary btn-sm w-100 mb-2">
+                        <i class="fas fa-list"></i> Ver Serviços
+                    </a>
+                    <a href="{% url 'cadastrar_servico' %}" class="btn btn-secondary btn-sm w-100 mb-2">
+                        <i class="fas fa-plus"></i> Novo Serviço
+                    </a>
+                     <a href="{% url 'atualizar_servico' %}" class="btn btn-secondary btn-sm w-100 mb-2">
+                        <i class="fas fa-edit"></i> Atualizar Serviços
+                    </a>
+                    <a href="{% url 'deletar_servico' %}" class="btn btn-secondary btn-sm w-100">
+                        <i class="fas fa-trash"></i> Deletar Serviço
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<style>
+.card {
+    transition: transform 0.2s;
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-footer {
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.btn {
+    border-radius: 0.375rem;
+}
+
+.display-4 {
+    color: #333;
+    font-weight: 300;
+}
+
+.lead {
+    color: #6c757d;
+}
+</style>
+{% endblock %}

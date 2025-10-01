@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Deletar produto - Barbearia{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="fas fa-trash me-2"></i> Deletar Produto</h4>
+            </div>
+            <div class="card-body">
+                
+                <form method="POST" action="{% url 'deletar_produto' %}">
+                    {% csrf_token %}
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Atenção!</strong> Esta ação não pode ser desfeita. Todos os dados do produto serão permanentemente removidos.
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="idproduto" class="form-label">ID do produto <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="idproduto" name="idproduto" required 
+                                   placeholder="Ex: 1">
+                            <div class="form-text">ID do produto a ser deletado</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'lista_estoque' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja deletar este produto?')">
+                            <i class="fas fa-trash me-1"></i> Deletar Permanentemente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Informações</h5>
+                <p class="card-text">
+                    Certifique-se do ID do produto antes de deletar.
+                    Esta ação remove permanentemente o registro do banco de dados.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    return confirm('Tem certeza que deseja deletar este produto? Esta ação não pode ser desfeita.');
+}
+</script>
+
+<style>
+.card {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn {
+    border-radius: 0.375rem;
+    padding: 0.5rem 1.5rem;
+}
+
+.shadow {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.alert {
+    border-left: 4px solid #ffc107;
+}
+</style>
+{% endblock %}

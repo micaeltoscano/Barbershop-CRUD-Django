@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastrar Serviço - Barbearia{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-plus-circle"></i> Cadastrar Novo Serviço
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do Serviço</label>
+                        <input type="text" class="form-control" id="nome" name="nome" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="valor" class="form-label">Valor (R$)</label>
+                        <input type="number" class="form-control" id="valor" name="valor" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="duracao" class="form-label">Duração (minutos)</label>
+                        <input type="number" class="form-control" id="duracao" name="duracao" min="1" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="categoria" class="form-label">Categoria</label>
+                        <select class="form-select mb-2" id="categoria" name="categoria_id" required>
+                            <option value="" selected disabled>Selecione uma categoria</option>
+                            {% for categoria in categorias %}
+                                <option value="{{ categoria.idcategoria }}">{{ categoria.nome_categoria }}</option>
+                            {% endfor %}
+                        </select>
+                        <a href="{% url 'cadastrar_categoria' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> Nova Categoria
+                        </a>
+                    </div>
+
+                    <hr>
+                    
+                    <h5 class="mb-3"><i class="fas fa-boxes me-2"></i>Produtos Utilizados</h5>
+                    
+                    <div id="produtos-container">
+                        
+                        <div class="produto-item card mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <label class="form-label">Produto</label>
+                                        <select class="form-select" name="produto_id[]">
+                                            <option value="">Selecione um produto (opcional)</option>
+                                            {% for produto in produtos %}
+                                            <option value="{{ produto.idproduto }}">{{ produto.nome }} - R$ {{ produto.valor }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Quantidade</label>
+                                        <input type="number" class="form-control" name="produto_quantidade[]" min="1" value="1">
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btn-remover-produto" style="display: none;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <button type="button" id="btn-add-produto" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i> Adicionar Produto
+                        </button>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'lista_servico' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Serviço
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('produtos-container');
+    const addButton = document.getElementById('btn-add-produto');
+    
+    addButton.addEventListener('click', function() {
+        const firstItem = container.querySelector('.produto-item');
+        const newItem = firstItem.cloneNode(true);
+        
+        // Limpar valores do novo item
+        newItem.querySelectorAll('select, input').forEach(field => {
+            field.value = '';
+            if (field.type === 'number') field.value = '1';
+        });
+        
+        // Mostrar botão de remover no novo item
+        newItem.querySelector('.btn-remover-produto').style.display = 'block';
+        
+        // Adicionar evento de remover
+        newItem.querySelector('.btn-remover-produto').addEventListener('click', function() {
+            if (container.querySelectorAll('.produto-item').length > 1) {
+                newItem.remove();
+            }
+        });
+        
+        container.appendChild(newItem);
+    });
+    
+    // Adicionar evento de remover para todos os botões existentes
+    document.querySelectorAll('.btn-remover-produto').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (container.querySelectorAll('.produto-item').length > 1) {
+                this.closest('.produto-item').remove();
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.produto-item {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+}
+
+.produto-item .card-body {
+    padding: 1rem;
+}
+
+.btn-remover-produto {
+    transition: all 0.3s ease;
+}
+
+.btn-remover-produto:hover {
+    transform: scale(1.05);
+}
+</style>
+{% endblock %}

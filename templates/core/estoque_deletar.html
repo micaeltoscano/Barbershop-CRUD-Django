@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Deletar Item do Estoque - Barbearia{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="fas fa-trash me-2"></i> Remover do Estoque</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'deletar_estoque' %}" onsubmit="return confirm('Tem certeza que deseja remover este item do estoque?')">
+                    {% csrf_token %}
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="idestoque" class="form-label">ID do Estoque <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="idestoque" name="idestoque" required 
+                                   placeholder="Ex: 1">
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'lista_estoque' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i> Remover Permanentemente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

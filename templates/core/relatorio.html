@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+
+{% block title %}Relatórios - Barbearia{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="fas fa-chart-line"></i> Relatórios - {{ mes_atual }}/{{ ano_atual }}</h1>
+    
+    <!-- Filtro por Período -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-filter"></i> Filtrar por Período
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'relatorios' %}" class="row g-3">
+                {% csrf_token %}
+                <div class="col-md-4">
+                    <label for="mes" class="form-label">Mês</label>
+                    <select name="mes" id="mes" class="form-select">
+                        <option value="">Todos os meses</option>
+                        <option value="1" {% if mes_filtro == 1 %}selected{% endif %}>Janeiro</option>
+                        <option value="2" {% if mes_filtro == 2 %}selected{% endif %}>Fevereiro</option>
+                        <option value="3" {% if mes_filtro == 3 %}selected{% endif %}>Março</option>
+                        <option value="4" {% if mes_filtro == 4 %}selected{% endif %}>Abril</option>
+                        <option value="5" {% if mes_filtro == 5 %}selected{% endif %}>Maio</option>
+                        <option value="6" {% if mes_filtro == 6 %}selected{% endif %}>Junho</option>
+                        <option value="7" {% if mes_filtro == 7 %}selected{% endif %}>Julho</option>
+                        <option value="8" {% if mes_filtro == 8 %}selected{% endif %}>Agosto</option>
+                        <option value="9" {% if mes_filtro == 9 %}selected{% endif %}>Setembro</option>
+                        <option value="10" {% if mes_filtro == 10 %}selected{% endif %}>Outubro</option>
+                        <option value="11" {% if mes_filtro == 11 %}selected{% endif %}>Novembro</option>
+                        <option value="12" {% if mes_filtro == 12 %}selected{% endif %}>Dezembro</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="ano" class="form-label">Ano</label>
+                    <select name="ano" id="ano" class="form-select" required>
+                        <option value="" disabled>Selecione o ano</option>
+                        {% for ano in anos_disponiveis %}
+                        <option value="{{ ano }}" {% if ano_filtro == ano %}selected{% endif %}>{{ ano }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Aplicar Filtro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cards de Resumo -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">R$ {{ valor_total_vendas|floatformat:2 }}</h5>
+                    <p class="card-text">Faturamento Total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">R$ {{ valor_vendas_mes|floatformat:2 }}</h5>
+                    <p class="card-text">Faturamento do Mês</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">{{ total_clientes }}</h5>
+                    <p class="card-text">Total de Clientes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">{{ agendamentos_mes }}</h5>
+                    <p class="card-text">Agendamentos do Mês</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relatório de Vendas -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <i class="fas fa-money-bill-wave"></i> Relatório de Vendas
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-3 text-center">
+                    <div class="stat-value">{{ total_vendas }}</div>
+                    <div class="stat-label">Total de Vendas</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="stat-value">R$ {{ valor_total_vendas|floatformat:2 }}</div>
+                    <div class="stat-label">Valor Total</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="stat-value">R$ {{ ticket_medio|floatformat:2 }}</div>
+                    <div class="stat-label">Ticket Médio</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="stat-value">{{ vendas_mes }}</div>
+                    <div class="stat-label">Vendas este Mês</div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Formas de Pagamento Mais Utilizadas</h5>
+                    <ul class="list-group">
+                        {% for forma, quantidade in formas_pagamento.items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ forma }}
+                            <span class="badge bg-primary rounded-pill">{{ quantidade }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>Taxa de Conclusão de Agendamentos</h5>
+                    <div class="progress mb-2" style="height: 30px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ taxa_conclusao }}%;" 
+                             aria-valuenow="{{ taxa_conclusao }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ taxa_conclusao|floatformat:1 }}%
+                        </div>
+                    </div>
+                    <small>{{ agendamentos_mes }} agendamentos no total</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relatório de Estoque -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <i class="fas fa-boxes"></i> Relatório de Estoque
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-3 text-center">
+                    <div class="stat-value">{{ total_produtos }}</div>
+                    <div class="stat-label">Total de Produtos</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="stat-value">{{ produtos_baixo_estoque }}</div>
+                    <div class="stat-label">Produtos com Baixo Estoque</div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="stat-value">{{ categorias_count|length }}</div>
+                    <div class="stat-label">Categorias</div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Produtos Mais Vendidos</h5>
+                    {% if produtos_mais_vendidos %}
+                    <ul class="list-group">
+                        {% for produto in produtos_mais_vendidos %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ produto.nome }}
+                            <span class="badge bg-primary rounded-pill">{{ produto.total_vendido }} unidades</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">Nenhum dado disponível</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relatório de Serviços -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <i class="fas fa-concierge-bell"></i> Relatório de Serviços
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h5>Serviços Mais Solicitados</h5>
+                    {% if servicos_mais_solicitados %}
+                    <ul class="list-group">
+                        {% for servico in servicos_mais_solicitados %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ servico.nome }}
+                            <span class="badge bg-primary rounded-pill">{{ servico.total_realizado }} realizações</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">Nenhum dado disponível</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h5>Distribuição por Categoria</h5>
+                    <ul class="list-group">
+                        {% for categoria, quantidade in categorias_count.items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ categoria }}
+                            <span class="badge bg-primary rounded-pill">{{ quantidade }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relatório de Funcionários -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <i class="fas fa-user-tie"></i> Desempenho dos Funcionários
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Funcionário</th>
+                            <th>Total de Vendas</th>
+                            <th>Valor em Vendas</th>
+                            <th>Serviços Realizados</th>
+                            <th>Produtos Vendidos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for funcionario, dados in vendas_por_funcionario.items %}
+                        <tr>
+                            <td>{{ funcionario }}</td>
+                            <td>{{ dados.total_vendas }}</td>
+                            <td>R$ {{ dados.valor_vendas|floatformat:2 }}</td>
+                            <td>{{ dados.servicos_realizados }}</td>
+                            <td>{{ dados.produtos_vendidos }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">Nenhum dado disponível</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+        font-weight: 600;
+    }
+    
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #343a40;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .table-responsive {
+        border-radius: 0 0 10px 10px;
+    }
+    
+    .progress {
+        border-radius: 5px;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}

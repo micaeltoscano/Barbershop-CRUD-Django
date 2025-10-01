@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastrar Estoque - Barbearia{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i> Adicionar ao Estoque</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'cadastrar_estoque' %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="produto" class="form-label">Produto</label>
+                        <select class="form-select mb-2" id="produto" name="produto" required>
+                            <option value="" selected disabled>Selecione um produto</option>
+                            {% for produto in produtos %}
+                                <option value="{{ produto.nome}}">{{ produto.nome}}</option>
+                            {% endfor %}
+                        </select>
+                        
+                        <div class="d-flex gap-2 mt-2">
+                            <a href="{% url 'cadastrar_produto' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-plus"></i> Novo Produto
+                            </a>
+                            <a href="{% url 'listar_produtos' %}" class="btn btn-outline-info">
+                                <i class="fas fa-list"></i> Listar Produtos
+                            </a>
+                            <a href="{% url 'deletar_produto' %}" class="btn btn-outline-danger">
+                                <i class="fas fa-trash"></i> Deletar Produto
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="quantidade_atual" class="form-label">Quantidade Atual <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="quantidade_atual" name="quantidade_atual" required 
+                                   placeholder="Ex: 50" min="0">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="quantidade_minima" class="form-label">Quantidade Mínima <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="quantidade_minima" name="quantidade_minima" required 
+                                placeholder="Ex: 10" min="0">
+                            <div class="form-text">Alerta quando estoque chegar neste nível</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'lista_estoque' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Voltar para Estoque
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-1"></i> Adicionar ao Estoque
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Informações</h5>
+                <p class="card-text">
+                    Campos marcados com <span class="text-danger">*</span> são obrigatórios.
+                    O sistema alertará quando a quantidade atual atingir a quantidade mínima.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

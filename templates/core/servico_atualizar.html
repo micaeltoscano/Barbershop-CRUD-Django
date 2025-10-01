@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Atualizar Serviço - Barbearia{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-white">
+                <h4 class="mb-0"><i class="fas fa-edit me-2"></i> Atualizar Serviço</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'atualizar_servico' %}">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="idservico" class="form-label">ID do Serviço <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="idservico" name="idservico" required 
+                                   placeholder="Ex: 1">
+                            <div class="form-text">ID do serviço a ser atualizado</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="coluna" class="form-label">Campo a Atualizar <span class="text-danger">*</span></label>
+                            <select class="form-control" id="coluna" name="coluna" required>
+                                <option value="">Selecione o campo</option>
+                                <option value="nome_servico">Nome do Serviço</option>
+                                <option value="valor">Valor</option>
+                                <option value="id_categoria">ID da Categoria</option>
+                                <option value="duracao">Duração</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="novo_valor" class="form-label">Novo Valor <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="novo_valor" name="novo_valor" required 
+                                   placeholder="Digite o novo valor">
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'lista_servico' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Voltar para Lista
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save me-1"></i> Atualizar Serviço
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
