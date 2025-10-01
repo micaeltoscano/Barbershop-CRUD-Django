@@ -54,7 +54,7 @@ class Crud(Banco):
         
     def pesquisar_nome(self, nome):
         try:
-            pesquisa = self.processar(f"SELECT * FROM {self.tabela} WHERE nome = %s", (nome,), fetch = True)
+            pesquisa = self.processar(f"SELECT * FROM {self.tabela} WHERE nome ILIKE %s",(f"%{nome}%",), fetch=True)
             return pesquisa
         
         except Exception as e:

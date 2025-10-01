@@ -61,6 +61,7 @@ class Compra(Crud):
         
         try:
             with transaction.atomic():
+                
                 cliente_info = self.processar(
                     "SELECT c.cidade, c.is_flamengo, c.is_onepiece FROM cliente c "
                     "WHERE c.idcliente = %s",
@@ -76,6 +77,8 @@ class Compra(Crud):
                         desconto = Decimal('0.1')  # aplica 10% de desconto
                         messages.info(request, "Cliente elegível para 10% de desconto!")
             
+                #LEMBRETE: COLOCAR STATUS DA COMPRA
+
                 # INICIALIZA UMA COMPRA
                 super().cadastro(
                     valor_total=0, 
@@ -90,6 +93,9 @@ class Compra(Crud):
                 # INSERE ITENS DA COMPRA
                 itens.receber_produtos_django(id_compra, produtos_selecionados, quantidades)
 
+                print(id_compra)
+                estoque.atualizar_quantidade('venda', id_compra)
+
                 # CALCULA O TOTAL DA COMPRA
                 total_compra = self.processar(
                     "SELECT SUM(valor_total_item) FROM itens_compra WHERE id_compra = %s",
@@ -101,7 +107,7 @@ class Compra(Crud):
 
                 self.atualizar_compra('valor_total', valor_final, id_compra)
 
-                estoque.atualizar_quantidade('venda', id_compra)
+                
                 # REGISTRA O PAGAMENTO
                 pagamento.registrar_pagamento_produto(id_compra, metodo_pagamento)
 

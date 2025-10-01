@@ -1,6 +1,7 @@
 from crud import Crud
 from django.db import transaction
 
+
 class Estoque(Crud):
     
     tabela = 'estoque'
@@ -119,10 +120,15 @@ class Estoque(Crud):
                 novo_estoque = estoque_atual + (quantidade * operacao)
                 
                 if novo_estoque < 0:
-
+                    
+                    #GAMBIARRA:
+                    self.processar("DELETE FROM itens_compra WHERE id_compra = %s", (id_origem,))
+                    self.processar("DELETE FROM compra WHERE idcompra = %s", (id_origem,))
+                    
                     raise ValueError(
                         f"Operação inválida: Produto ID {id_produto} ficaria com estoque negativo "
                         f"({estoque_atual} disponível, tentativa de retirar {quantidade})."
                     )
-                
+
+                    
                 self.atualizar_estoque('quantidade_atual', novo_estoque, id_estoque)

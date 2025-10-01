@@ -84,6 +84,8 @@
                                     <span class="badge bg-success">Cartão Débito</span>
                                 {% elif pagamento.forma_pagamento == 'PIX' %}
                                     <span class="badge bg-secondary">PIX</span>
+                               {% elif pagamento.forma_pagamento == 'BERRIES' %}
+                                    <span class="badge bg-rosa">Berries</span>
                                 {% else %}
                                     <span class="badge bg-dark">Transferência</span>
                                 {% endif %}
@@ -131,5 +133,11 @@
     .table th, .table td {
         vertical-align: middle;
     }
+
+    .bg-rosa {
+    background-color: pink !important;
+    color: black; /* ou branco se preferir mais contraste */
+}
 </style>
+
 {% endblock %}

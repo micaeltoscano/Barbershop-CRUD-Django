@@ -79,4 +79,4 @@ itenscompra = Itens_compra()
 
 #funcionario.cadastrar_funcionario(nome = 'jorge', email = "jorggge@gmail.com", cpf = '22242222322', endereco = 'casa', numero_celular = '947445573', salario = 1900, especialidade = 'caneco')
 
-print(pagamento.ler_todos_pagamentos())
+print(disponibilidade.ler_todas_disponibilidades())

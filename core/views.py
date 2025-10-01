@@ -20,7 +20,6 @@ from funcoes.itens_compra import Itens_compra
 from decimal import Decimal
 from datetime import date
 
-
 #-----------------------CLIENTES-----------------------------------
 
 def buscar_cliente_por_cpf(request):
@@ -120,72 +119,74 @@ def compras_cliente(request):
 def cliente_pagar(request):
     if request.method == 'POST':
 
-        #PEGA O TIPO DO PAGAMENTO A SER FEITO (SERVIÇO OU PRODUTO) E O METODO DE PAGAMENTO
+        # PEGA O TIPO DO PAGAMENTO A SER FEITO (SERVIÇO OU PRODUTO) E O METODO DE PAGAMENTO
         tipo = request.POST.get('tipo_pagamento')
         metodo_pagamento = request.POST.get('metodo_pagamento')
         
         try:
-            if tipo == 'servico':
+            with transaction.atomic():  # garante que tudo dentro será uma transação
+                if tipo == 'servico':
 
-                #PEGA O ID DA AGENDA
-                id_agenda = request.POST.get('id_agenda')
-                
-                if not id_agenda or not metodo_pagamento:
-                    messages.error(request, "Preencha todos os campos obrigatórios.")
-                    return redirect('cliente_pagar')
-                
-                #CONFIRMA O SERVICO PELA FUNCAO DA CLASSE AGENDA
-                a = Agenda()
-                a.confirmar_servico(int(id_agenda), metodo_pagamento)
+                    # PEGA O ID DA AGENDA
+                    id_agenda = request.POST.get('id_agenda')
 
-                messages.success(request, f"Pagamento do serviço {id_agenda} registrado com sucesso!")
-                return redirect('home_cliente')
+                    if not id_agenda or not metodo_pagamento:
+                        messages.error(request, "Preencha todos os campos obrigatórios.")
+                        return redirect('registrar_pagamento')
+                    
+                    # CONFIRMA O SERVIÇO PELA FUNÇÃO DA CLASSE AGENDA
+                    a = Agenda()
+                    a.confirmar_servico(int(id_agenda), metodo_pagamento)
 
-            #SE FOR PAGAMENTO DE PRODUTOS
-            elif tipo == 'produto':
+                    messages.success(request, f"Pagamento do serviço {id_agenda} registrado com sucesso!")
 
-                #PEGA O ID DO CLIENTE E O DO FUNCIONARIO QUE REALIZOU AQUELA VENDA
-                pagamento = Pagamento()
-                
-                cpf = request.POST.get('cpf_cliente')
-                id_cliente = pagamento.processar("SELECT IDCLIENTE FROM CLIENTE WHERE CPF = %s", (cpf,), fetch=True)[0]['idcliente']
-                id_funcionario = request.POST.get('id_funcionario')
-                
-                #VERIFICA
-                if not metodo_pagamento or not id_cliente or not id_funcionario:
-                    messages.error(request, "Preencha todos os campos obrigatórios.")
-                    return redirect('cliente_pagar')
-                
-                #CHAMA A CLASSE
-                compra = Compra()
+                # SE FOR PAGAMENTO DE PRODUTOS
+                elif tipo == 'produto':
 
-                #RECEBE OS PRODUTOS SELECIONADOS E AS QUANTIDADES REFERENTES
-                produtos_selecionados = request.POST.getlist('produtos')
-                quantidades = request.POST.getlist('quantidades')
+                    pagamento = Pagamento()
+                    
+                    cpf = request.POST.get('cpf_cliente')
+                    
+                    id_cliente = pagamento.processar(
+                        "SELECT IDCLIENTE FROM CLIENTE WHERE CPF = %s", 
+                        (cpf,), 
+                        fetch=True
+                    )[0]['idcliente']
+                    
+                    id_funcionario = request.POST.get('id_funcionario')
+                    
+                    # VERIFICA
+                    if not metodo_pagamento or not id_cliente or not id_funcionario:
+                        messages.error(request, "Preencha todos os campos obrigatórios.")
+                        return redirect('registrar_pagamento')
+                    
+                    compra = Compra()
 
-                #REGISTRA A COMPRA
-                compra.registrar_compra_django(id_cliente, id_funcionario, metodo_pagamento, produtos_selecionados, quantidades, request)
-                messages.success(request, "Pagamento dos produtos registrado com sucesso!")
-                return redirect('home_cliente')
+                    # RECEBE OS PRODUTOS SELECIONADOS E AS QUANTIDADES REFERENTES
+                    produtos_selecionados = request.POST.getlist('produtos')
+                    quantidades = request.POST.getlist('quantidades')
 
-            
+                    # REGISTRA A COMPRA
+                    compra.registrar_compra_django(
+                        id_cliente, 
+                        id_funcionario, 
+                        metodo_pagamento, 
+                        produtos_selecionados, 
+                        quantidades, 
+                        request
+                    )
+                    messages.success(request, "Pagamento dos produtos registrado com sucesso!")
+
         except Exception as e:
             messages.error(request, f"Ocorreu um erro: {str(e)}")
-            return redirect('cliente_pagar')
+            return redirect('registrar_pagamento')
     
-    #CARREGAR A LISTA DE PRODUTOS, DEPOIS CLIENTES E FUNCIONARIOS PARA PASSAR P O HTML:
-
-    produtos = Produto()
-    clientes = Clientes()
-    funcionarios = Funcionario()
-
-    produtos = produtos.ler_todos_produtos_ativos()
+    # CARREGAR A LISTA DE PRODUTOS, DEPOIS CLIENTES E FUNCIONÁRIOS PARA PASSAR P O HTML:
+    produtos = Produto().ler_todos_produtos_ativos()
+    clientes = Clientes().ler_todos_clientes()
+    funcionarios = Funcionario().ler_todos_funcionarios_ativos()
     
-    clientes = clientes.ler_todos_clientes()
-    
-    funcionarios = funcionarios.ler_todos_funcionarios_ativos()
-    
-    return render(request, 'core/cliente_pagar.html', {
+    return render(request, 'core/pagamento_registrar.html', {
         'produtos': produtos,
         'clientes': clientes,
         'funcionarios': funcionarios
@@ -238,45 +239,39 @@ def cliente_list_view(request):
     return render(request, 'core/cliente_list.html', context)
 
 def cadastrar_cliente(request):
-
-    #PEGA OS DADOS DO FORMULARIO. (TEM A FUNCAO POST E GET, POST É PARA PEGAR OS DADOS E GET É P EXIBICAO)
     if request.method == 'POST':
 
-        #DICIONARIO COM TODOS OS CAMPOS OBRIGATORIOS 
+        # CAMPOS OBRIGATÓRIOS
         campos_obrigatorios = {
-        'nome': 'Nome',
-        'email': 'E-mail',
-        'cpf': 'CPF',
-        'endereco': 'Endereço',
-        'numero_celular': 'Número de celular', 
-        'cidade': 'cidade',
-        'is_flamengo': 'is_flamengo',
-        'is_onepiece': 'is_onepiece' }
+            'nome': 'Nome',
+            'email': 'E-mail',
+            'cpf': 'CPF',
+            'endereco': 'Endereço',
+            'numero_celular': 'Número de celular',
+            'cidade': 'Cidade',
+        }
 
-        #PEGA OS DADOS NECESSARIOS P O CADASTRO
-        dados = {campo: request.POST.get(campo) for campo in campos_obrigatorios}
+        # CAMPOS OPCIONAIS
+        campos_opcionais = {
+            'is_flamengo': 'is_flamengo',
+            'is_onepiece': 'is_onepiece'
+        }
 
-        #É O MESMO QUE FAZER ISSO:
-            # nome = request.POST.get('nome')
-            # email = request.POST.get('email')
-            # cpf = request.POST.get('cpf')
-            # endereco = request.POST.get('endereco')
-            # numero_celular = request.POST.get('numero_celular')
+        # PEGA TODOS OS DADOS (obr + opc)
+        dados = {campo: request.POST.get(campo) for campo in {**campos_obrigatorios, **campos_opcionais}}
 
-        #VERIFICACAO SE TODOS OS CAMPOS FORAM PREENCHIDOS 
+        # VERIFICA SE OS OBRIGATÓRIOS FORAM PREENCHIDOS
         for campo, valor in dados.items():
-            if not valor:
+            if campo in campos_obrigatorios and not valor:
                 messages.error(request, f'{campos_obrigatorios[campo]} é obrigatório')
                 return render(request, 'core/cadastro_cliente.html')
+
         try:
-            #CHAMA A CLASSE CLIENTES E A FUNCAO CADASTRAR CLIENTE
             c = Clientes()
-
-            c.cadastrar_cliente(**dados) #AQUI EU DESEMPACOTEI OS DADOS 
-
+            c.cadastrar_cliente(**dados)
             messages.success(request, 'Cliente cadastrado com sucesso!')
             return redirect('cliente_list')
-            
+
         except Exception as e:
             messages.error(request, f'Erro ao cadastrar: {str(e)}')
     
@@ -407,7 +402,7 @@ def cadastrar_funcionario(request):
                 else:
 
                     funcionario_id = f.cadastrar_funcionario(**dados) #DESEMPACOTA OS DADOS PARA CADASTRAR O FUNCIONARIO
-                    messages.success(request, f'Funcionário "{dados["nome"]}" do cpf "{dados["cpf"]}"tem esse ID {funcionario_id}!')
+                    messages.success(request, f"funcionario id: {funcionario_id}")
                     #CADASTRA A DISPONIBILIDADE DO FUNCIONARIO
 
                     d = Disponibilidade()
@@ -1154,6 +1149,7 @@ def registrar_pagamento(request):
                     pagamento = Pagamento()
                     
                     cpf = request.POST.get('cpf_cliente')
+                    
                     id_cliente = pagamento.processar(
                         "SELECT IDCLIENTE FROM CLIENTE WHERE CPF = %s", 
                         (cpf,), 

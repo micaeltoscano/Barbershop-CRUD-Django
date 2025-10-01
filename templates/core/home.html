@@ -22,16 +22,15 @@
                     <a href="{% url 'cliente_list' %}" class="btn btn-primary btn-sm w-100 mb-2">
                         <i class="fas fa-list"></i> Listar Clientes
                     </a>
-                    <a href="{% url 'cadastrar_cliente' %}" class="btn btn-primary btn btn-sm btn-sm w-100 mb-2">
-                        <i class="fas fa-user-plus"></i> Novo Cliente
+                    <a href="{% url 'cadastrar_cliente' %}" class="btn btn-primary btn-sm w-100 mb-2">
+                        <i class="fas fa-plus"></i> Novo Cliente
                     </a>
                     <a href="{% url 'atualizar_cliente' %}" class="btn btn-primary btn-sm w-100 mb-2">
-                        <i class="fas fa-list"></i> Atualizar Cliente
+                        <i class="fas fa-edit"></i> Atualizar Cliente
                     </a>
-                    <a href="{% url 'deletar_cliente' %}" class="btn btn-primary btn-sm btn-sm w-100">
-                        <i class="fas fa-list"></i> Deletar Cliente
+                    <a href="{% url 'deletar_cliente' %}" class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-trash"></i> Deletar Cliente
                     </a>
-                    
                 </div>
             </div>
         </div>
@@ -49,13 +48,13 @@
                         <i class="fas fa-list"></i> Listar Funcionários
                     </a>
                     <a href="{% url 'cadastrar_funcionario' %}" class="btn btn-warning btn-sm w-100 mb-2">
-                        <i class="fas fa-user-plus"></i> Novo Funcionário
+                        <i class="fas fa-plus"></i> Novo Funcionário
                     </a>
                     <a href="{% url 'atualizar_funcionario' %}" class="btn btn-warning btn-sm w-100 mb-2">
-                        <i class="fas fa-list"></i> Atualizar Funcionário
+                        <i class="fas fa-edit"></i> Atualizar Funcionário
                     </a>
                     <a href="{% url 'deletar_funcionario' %}" class="btn btn-warning btn-sm w-100">
-                        <i class="fas fa-list"></i> Desvincular Funcionário
+                        <i class="fas fa-user-times"></i> Desvincular Funcionário
                     </a>
                 </div>
             </div>
@@ -70,16 +69,16 @@
                 </div>
                 <div class="card-footer bg-transparent">
                     <a href="{% url 'lista_agenda' %}" class="btn btn-info btn-sm w-100 mb-2">
-                        <i class="fas fa-eye"></i> Visualizar Agenda
+                        <i class="fas fa-list"></i> Visualizar Agenda
                     </a>
                     <a href="{% url 'cadastrar_agenda' %}" class="btn btn-info btn-sm w-100 mb-2">
                         <i class="fas fa-plus"></i> Novo Agendamento
                     </a>
                     <a href="{% url 'atualizar_agenda' %}" class="btn btn-info btn-sm w-100 mb-2">
-                        <i class="fas fa-eye"></i> Atualizar Agendamento
+                        <i class="fas fa-edit"></i> Atualizar Agendamento
                     </a>
-                    <a href="{% url 'deletar_agenda' %}" class="btn btn-info btn-sm w-100 ">
-                        <i class="fas fa-eye"></i> Deletar Agendamento
+                    <a href="{% url 'deletar_agenda' %}" class="btn btn-info btn-sm w-100">
+                        <i class="fas fa-trash"></i> Deletar Agendamento
                     </a>
                 </div>
             </div>
@@ -96,14 +95,14 @@
                     <a href="{% url 'lista_estoque' %}" class="btn btn-success btn-sm w-100 mb-2">
                         <i class="fas fa-list"></i> Ver Estoque
                     </a>
-                    <a href="{% url 'cadastrar_estoque' %}" class="btn btn-success btn-sm w-100  mb-2">
+                    <a href="{% url 'cadastrar_estoque' %}" class="btn btn-success btn-sm w-100 mb-2">
                         <i class="fas fa-plus"></i> Adicionar Produto
                     </a>
                     <a href="{% url 'atualizar_estoque' %}" class="btn btn-success btn-sm w-100 mb-2">
-                        <i class="fas fa-list"></i> Atualizar Estoque
+                        <i class="fas fa-edit"></i> Atualizar Estoque
                     </a>
                     <a href="{% url 'deletar_estoque' %}" class="btn btn-success btn-sm w-100">
-                        <i class="fas fa-list"></i> Deletar produto
+                        <i class="fas fa-trash"></i> Deletar produto
                     </a>
                 </div>
             </div>
@@ -125,10 +124,10 @@
                         <i class="fas fa-plus"></i> Registrar Pagamento
                     </a>
                      <a href="#" class="btn btn-danger btn-sm w-100 mb-2">
-                        <i class="fas fa-list"></i> Atualizar Pagamento
+                        <i class="fas fa-edit"></i> Atualizar Pagamento
                     </a>
-                    <a href="{% url 'compras_servicos' %}" class="btn btn-danger btn-sm w-100">
-                        <i class="fas fa-list"></i> Compras & Serviços
+                    <a href="#" class="btn btn-danger btn-sm w-100">
+                        <i class="fas fa-trash"></i> Deletar Pagamento
                     </a>
                 </div>
             </div>
@@ -149,17 +148,15 @@
                         <i class="fas fa-plus"></i> Novo Serviço
                     </a>
                      <a href="{% url 'atualizar_servico' %}" class="btn btn-secondary btn-sm w-100 mb-2">
-                        <i class="fas fa-list"></i> Atualizar Serviços
+                        <i class="fas fa-edit"></i> Atualizar Serviços
                     </a>
                     <a href="{% url 'deletar_servico' %}" class="btn btn-secondary btn-sm w-100">
-                        <i class="fas fa-plus"></i> Deletar Serviço
+                        <i class="fas fa-trash"></i> Deletar Serviço
                     </a>
                 </div>
             </div>
         </div>
     </div>
-
-    
 
 <style>
 .card {
