@@ -1255,8 +1255,6 @@ def relatorios(request):
         mes_atual = int(mes_atual)
         ano_atual = int(ano_atual)
     
-    
-    
     # Dados financeiros
     pagamentos = pagamento.ler_todos_pagamentos()
     
@@ -1269,6 +1267,7 @@ def relatorios(request):
         pagamentos_filtrados = pagamentos
     
     valor_total_vendas = sum(n['valor'] for n in pagamentos_filtrados)
+    
     total_vendas = len(pagamentos_filtrados)
     ticket_medio = valor_total_vendas / total_vendas if total_vendas > 0 else 0
     
@@ -1397,6 +1396,8 @@ def relatorios(request):
     # Para carregar os anos disponíveis no filtro
     ano_atual = date.today().year
     anos_disponiveis = list(range(ano_atual - 5, ano_atual + 1))
+
+    
 
     context = {
         'total_vendas': total_vendas,

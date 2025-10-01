@@ -88,18 +88,19 @@ class Compra(Crud):
         id_compra = id_compra_result[0]['max'] if id_compra_result else None
 
         #CHAMA A FUNCAO DE RECEBER OS ITENS DA COMPRA
-        itens.receber_produtos_django(id_compra, produtos_selecionados, quantidades, desconto)
+        itens.receber_produtos_django(id_compra, produtos_selecionados, quantidades)
 
         #CALCULA O TOTAL DA COMPRA
         total_compra = self.processar(
                                     "SELECT SUM(valor_total_item) FROM itens_compra WHERE id_compra = %s",
                                     (id_compra,), fetch=True)[0]['sum']
         
-        if desconto > 0:
-            total_compra = total_compra * (1 - desconto)
+        # if desconto > 0:
+        #     total_compra = total_compra * (1 - desconto)
 
+        
         #ATUALIZA A TABELA DE COMPRA COM O VALOR TOTAL REALIZADO NA COMPRA
-        self.atualizar_compra('valor_total', total_compra, id_compra)
+        self.atualizar_compra('valor_total', total_compra * (1 - desconto), id_compra)
 
         #REGISTRA O PAGAMENTO NA TABELA DE PAGAMENTOS
         pagamento.registrar_pagamento_produto(id_compra, metodo_pagamento)
@@ -109,7 +110,7 @@ class Compra(Crud):
 
         messages.info(
             request,
-            f"Compra registrada com sucesso! Total: {total_compra:.2f}. Total sem desconto: {total_compra / (1 - desconto) if desconto > 0 else total_compra:.2f}"
+            f"Compra registrada com sucesso! Total: {total_compra * (1 - desconto):.2f}. Total sem desconto: {total_compra if desconto > 0 else total_compra:.2f}"
         )
 
         

@@ -48,11 +48,15 @@ class Itens_compra(Crud):
     def ler_todos_itens_compra(self):
         return super().ler_todos()
     
-    def receber_produtos_django(self, id_compra, produtos_selecionados, quantidades, desconto=0):
+    def receber_produtos_django(self, id_compra, produtos_selecionados, quantidades):
+
         for i, id_produto in enumerate(produtos_selecionados):
+
             if id_produto and quantidades[i]:
+
                 try:
                     quantidade = int(quantidades[i])
+
                     if quantidade > 0:
                         # Consulta o valor do produto
                         consulta = self.processar(
@@ -61,9 +65,8 @@ class Itens_compra(Crud):
                         )
                     if consulta:
                         valor_unitario = Decimal(str(consulta[0]['valor']))
-                        # Aplicar desconto - converter tudo para Decimal
-                        fator_desconto = Decimal('1.0') - desconto
-                        valor_total_item = valor_unitario * Decimal(quantidade) * fator_desconto
+                       
+                        valor_total_item = valor_unitario * quantidade
 
                         # Cadastra o item na tabela
                         super().cadastro(
