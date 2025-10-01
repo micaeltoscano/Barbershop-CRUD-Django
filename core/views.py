@@ -1127,69 +1127,71 @@ def deletar_produto(request):
 def registrar_pagamento(request):
     if request.method == 'POST':
 
-        #PEGA O TIPO DO PAGAMENTO A SER FEITO (SERVIÇO OU PRODUTO) E O METODO DE PAGAMENTO
+        # PEGA O TIPO DO PAGAMENTO A SER FEITO (SERVIÇO OU PRODUTO) E O METODO DE PAGAMENTO
         tipo = request.POST.get('tipo_pagamento')
         metodo_pagamento = request.POST.get('metodo_pagamento')
         
         try:
-            if tipo == 'servico':
+            with transaction.atomic():  # garante que tudo dentro será uma transação
+                if tipo == 'servico':
 
-                #PEGA O ID DA AGENDA
-                id_agenda = request.POST.get('id_agenda')
+                    # PEGA O ID DA AGENDA
+                    id_agenda = request.POST.get('id_agenda')
 
-                
-                if not id_agenda or not metodo_pagamento:
-                    messages.error(request, "Preencha todos os campos obrigatórios.")
-                    return redirect('registrar_pagamento')
-                
-                #CONFIRMA O SERVICO PELA FUNCAO DA CLASSE AGENDA
-                a = Agenda()
-                a.confirmar_servico(int(id_agenda), metodo_pagamento)
+                    if not id_agenda or not metodo_pagamento:
+                        messages.error(request, "Preencha todos os campos obrigatórios.")
+                        return redirect('registrar_pagamento')
+                    
+                    # CONFIRMA O SERVIÇO PELA FUNÇÃO DA CLASSE AGENDA
+                    a = Agenda()
+                    a.confirmar_servico(int(id_agenda), metodo_pagamento)
 
-                messages.success(request, f"Pagamento do serviço {id_agenda} registrado com sucesso!")
+                    messages.success(request, f"Pagamento do serviço {id_agenda} registrado com sucesso!")
 
-            #SE FOR PAGAMENTO DE PRODUTOS
-            elif tipo == 'produto':
+                # SE FOR PAGAMENTO DE PRODUTOS
+                elif tipo == 'produto':
 
-                #PEGA O ID DO CLIENTE E O DO FUNCIONARIO QUE REALIZOU AQUELA VENDA
-                pagamento = Pagamento()
-                
-                cpf = request.POST.get('cpf_cliente')
-                id_cliente = pagamento.processar("SELECT IDCLIENTE FROM CLIENTE WHERE CPF = %s", (cpf,), fetch=True)[0]['idcliente']
-                id_funcionario = request.POST.get('id_funcionario')
-                
-                #VERIFICA
-                if not metodo_pagamento or not id_cliente or not id_funcionario:
-                    messages.error(request, "Preencha todos os campos obrigatórios.")
-                    return redirect('registrar_pagamento')
-                
-                #CHAMA A CLASSE
-                compra = Compra()
+                    pagamento = Pagamento()
+                    
+                    cpf = request.POST.get('cpf_cliente')
+                    id_cliente = pagamento.processar(
+                        "SELECT IDCLIENTE FROM CLIENTE WHERE CPF = %s", 
+                        (cpf,), 
+                        fetch=True
+                    )[0]['idcliente']
+                    
+                    id_funcionario = request.POST.get('id_funcionario')
+                    
+                    # VERIFICA
+                    if not metodo_pagamento or not id_cliente or not id_funcionario:
+                        messages.error(request, "Preencha todos os campos obrigatórios.")
+                        return redirect('registrar_pagamento')
+                    
+                    compra = Compra()
 
-                #RECEBE OS PRODUTOS SELECIONADOS E AS QUANTIDADES REFERENTES
-                produtos_selecionados = request.POST.getlist('produtos')
-                quantidades = request.POST.getlist('quantidades')
+                    # RECEBE OS PRODUTOS SELECIONADOS E AS QUANTIDADES REFERENTES
+                    produtos_selecionados = request.POST.getlist('produtos')
+                    quantidades = request.POST.getlist('quantidades')
 
-                #REGISTRA A COMPRA
-                compra.registrar_compra_django(id_cliente, id_funcionario, metodo_pagamento, produtos_selecionados, quantidades, request)
-                messages.success(request, "Pagamento dos produtos registrado com sucesso!")
+                    # REGISTRA A COMPRA
+                    compra.registrar_compra_django(
+                        id_cliente, 
+                        id_funcionario, 
+                        metodo_pagamento, 
+                        produtos_selecionados, 
+                        quantidades, 
+                        request
+                    )
+                    messages.success(request, "Pagamento dos produtos registrado com sucesso!")
 
-            
         except Exception as e:
             messages.error(request, f"Ocorreu um erro: {str(e)}")
             return redirect('registrar_pagamento')
     
-    #CARREGAR A LISTA DE PRODUTOS, DEPOIS CLIENTES E FUNCIONARIOS PARA PASSAR P O HTML:
-
-    produtos = Produto()
-    clientes = Clientes()
-    funcionarios = Funcionario()
-
-    produtos = produtos.ler_todos_produtos_ativos()
-    
-    clientes = clientes.ler_todos_clientes()
-    
-    funcionarios = funcionarios.ler_todos_funcionarios_ativos()
+    # CARREGAR A LISTA DE PRODUTOS, DEPOIS CLIENTES E FUNCIONÁRIOS PARA PASSAR P O HTML:
+    produtos = Produto().ler_todos_produtos_ativos()
+    clientes = Clientes().ler_todos_clientes()
+    funcionarios = Funcionario().ler_todos_funcionarios_ativos()
     
     return render(request, 'core/pagamento_registrar.html', {
         'produtos': produtos,
